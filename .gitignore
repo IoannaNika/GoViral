@@ -1,0 +1,12 @@
+data/*
+*.out
+*/slurm/*
+*.sbatch
+*/__pycache__/*
+*/slurms/*
+### code for tools
+CliqueSNV/
+HaploDMF/
+QuasiSeq/
+RVHaplo/
+Strainline/
