@@ -13,7 +13,7 @@ function_run_cliquesnv(){
     in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
     out_path="results/cliquesnv/${ec_method}/per_region/${sample}/${start}_${end_region}/"
 
-    java -jar clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
+    java -jar CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
 }
 
 function_run_haplodmf(){
