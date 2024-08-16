@@ -39,7 +39,7 @@ function_run_rvhaplo(){
     in_path="../../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
     out_path="results/per_region/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
 
-    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -os ${start} -os ${end_region}
+    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
 }
 
 #### logic
