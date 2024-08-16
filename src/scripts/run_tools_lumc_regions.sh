@@ -10,7 +10,7 @@ function_run_cliquesnv(){
     end_region=$3
     ec_method=$4
 
-    in_path="../../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
+    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
     out_path="results/cliquesnv/${ec_method}/per_region/${sample}/${start}_${end_region}/"
 
     java -jar clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
@@ -23,7 +23,7 @@ function_run_haplodmf(){
     ec_method=$4
     reference=$5
     
-    in_path="../../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
+    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
     out_path="results/per_region/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
 
     /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF/haplodmf.sh -i $in_path -r $reference -o $out_path  -sp ${start} -ep ${end_region}
@@ -36,15 +36,15 @@ function_run_rvhaplo(){
     ec_method=$4
     reference=$5
 
-    in_path="../../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
+    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
     out_path="results/per_region/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
 
-    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
+    /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
 }
 
 #### logic
 
-reference="../../data/LUMC/ref/nCoV-2019.reference.fasta"
+reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
 genomic_regions="(54,1183),(1128,2244),(2179,3235),(3166,4240),(4189,5337),
                     (5286,6358),(6307,7379),(7328,8363),(8282,9378),(9327,10429),
