@@ -11,7 +11,7 @@ function_run_cliquesnv(){
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
     out_path="results/cliquesnv/${ec_method}/whole_genome/${sample}/"
 
-    java -jar CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path
+    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path
 }
 
 function_run_haplodmf(){
@@ -41,18 +41,19 @@ function_run_rvhaplo(){
 reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
 for sample in "03_50" "01_100" "02_100" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"; do 
-  
-    for tool in "original" "canu" "hifiasm" "lorma"; do
-        if tool_to_run="cliquesnv"; then
-            function_run_cliquesnv $sample $tool
+
+    for ec_tool in "canu" "hifiasm" "lorma" "original"; do
+   
+        if [[ "$tool_to_run" == "cliquesnv" ]]; then
+            function_run_cliquesnv $sample $ec_tool
         fi
-        if tool_to_run="haplodmf"; then
-            function_run_haplodmf $sample $tool $reference
+        if [[ "$tool_to_run" == "haplodmf" ]]; then
+            function_run_haplodmf $sample $ec_tool $reference
         fi
-        if tool_to_run="rvhaplo"; then
-            function_run_rvhaplo $sample $tool $reference
+        if [[ "$tool_to_run" == "rvhaplo" ]]; then
+            function_run_rvhaplo $sample $ec_tool $reference
         fi
-        
-    done   
+    
+    done
 
 done

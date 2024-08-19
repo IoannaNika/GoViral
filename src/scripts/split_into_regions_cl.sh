@@ -4,9 +4,9 @@ function_produce_sam_bam_bed(){
     ec_tool=$3
     sample=$4
 
-    # echo $ref_seq
-    # echo $input
-    # echo $ec_tool
+    echo $ref_seq
+    echo $input
+    echo $ec_tool
 
     output="../data/LUMC/whole_genome/${ec_tool}/${sample}/"
     # echo $output
@@ -16,7 +16,7 @@ function_produce_sam_bam_bed(){
     # echo $output_file
 
     # align reads to reference using minimap2
-    minimap2 -ax map-pb $ref_seq $input.fastq > $output_file.sam 
+    minimap2 -ax map-pb $ref_seq $input > $output_file.sam 
     samtools view -bS $output_file.sam > $output_file.bam
     samtools sort $output_file.bam -o $output_file.sorted.bam
     samtools index $output_file.sorted.bam
@@ -25,12 +25,12 @@ function_produce_sam_bam_bed(){
 
 ref_seq="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
-for sample in "03_50" # "01_100" "02_100" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
+for sample in "03_50" #"01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
 do
     ### Lorma
     tool="lorma"
     echo $tool
-    in_path_lorma="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/lorma/lumc/$sample/corrected"
+    in_path_lorma="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/lorma/lumc/$sample/corrected.fasta"
     bed_file_lorma="../data/LUMC/whole_genome/${tool}/${sample}/${sample}"
     out_path_lorma="../data/LUMC/per_region/${tool}/${sample}/${sample}"
 
@@ -43,7 +43,7 @@ do
     ### Canu
     tool="canu"
     echo $tool
-    in_path_canu="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/hicanu/lumc/$sample/output.canu.correctedReads"
+    in_path_canu="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/hicanu/lumc/$sample/output.canu.correctedReads.fasta"
     bed_file_canu="../data/LUMC/whole_genome/${tool}/${sample}/${sample}"
     out_path_canu="../data/LUMC/per_region/${tool}/${sample}/${sample}"
 
@@ -57,7 +57,7 @@ do
     ### Hifiasm
     tool="hifiasm"
     echo $tool
-    in_path_hifiasm="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/hifiasm/lumc/$sample/assembly.asm.ec"
+    in_path_hifiasm="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Read_simulators/error_corrected_data/hifiasm/lumc/$sample/assembly.asm.ec.fa"
     bed_file_hifiasm="../data/LUMC/whole_genome/${tool}/${sample}/${sample}"
     out_path_hifiasm="../data/LUMC/per_region/${tool}/${sample}/${sample}"
 
@@ -72,7 +72,7 @@ do
     tool="original"
     echo $tool
     ## Non-error corrected
-    in_path="../data/LUMC/whole_genome/original/trimmed_$sample"
+    in_path="../data/LUMC/whole_genome/original/trimmed_$sample.fastq"
     bed_file="../data/LUMC/whole_genome/${tool}/${sample}/${sample}"
     out_path="../data/LUMC/per_region/${tool}/${sample}/${sample}"
 

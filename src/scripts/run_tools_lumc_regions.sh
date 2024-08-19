@@ -10,10 +10,12 @@ function_run_cliquesnv(){
     end_region=$3
     ec_method=$4
 
-    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
+    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
     out_path="results/cliquesnv/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    
+    mkdir -p $out_path
 
-    java -jar CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
+    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
 }
 
 function_run_haplodmf(){
@@ -23,10 +25,12 @@ function_run_haplodmf(){
     ec_method=$4
     reference=$5
     
-    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
-    out_path="results/per_region/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
-
-    /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF/haplodmf.sh -i $in_path -r $reference -o $out_path  -sp ${start} -ep ${end_region}
+    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
+    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
+    ./haplodmf.sh -i $in_path -r $reference -o $out_path  -sp ${start} -ep ${end_region}
+    cd ../src
 }
 
 function_run_rvhaplo(){
@@ -36,10 +40,12 @@ function_run_rvhaplo(){
     ec_method=$4
     reference=$5
 
-    in_path="../data/LUMC/per_region/${ec_method}/${sample}/${start}_${end_region}.sam"
-    out_path="results/per_region/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
-
-    /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
+    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
+    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/
+    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
+    cd ../src
 }
 
 #### logic
@@ -55,7 +61,7 @@ genomic_regions="(54,1183),(1128,2244),(2179,3235),(3166,4240),(4189,5337),
                         (26766,27872),(27808,28985),(28699,29768),(29768,29790)"
 
 
-for sample in "03_50" "01_100" "02_100" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
+for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
 do 
     # Iterate over each genomic region
     for region in $genomic_regions; do
@@ -63,19 +69,19 @@ do
         region=$(echo $region | tr -d '()')
         start=$(echo $region | cut -d ',' -f 1)
         end_region=$(echo $region | cut -d ',' -f 2)
+
+        for ec_tool in "canu" "hifiasm" "lorma" "original"; do
         
-        for tool in "original" "canu" "hifiasm" "lorma"
-        do  
-            if tool_to_run="cliquesnv"; then
-                function_run_cliquesnv $sample $start $end_region $tool
+            if [[ "$tool_to_run" == "cliquesnv" ]]; then
+                function_run_cliquesnv $sample $start $end_region $ec_tool
             fi
-            if tool_to_run="haplodmf"; then
-                function_run_haplodmf $sample $start $end_region $tool $reference
+            if [[ "$tool_to_run" == "haplodmf" ]]; then
+                function_run_haplodmf $sample $start $end_region $ec_tool $reference
             fi
-            if tool_to_run="rvhaplo"; then
-                function_run_rvhaplo $sample $start $end_region $tool $reference
+            if [[ "$tool_to_run" == "rvhaplo" ]]; then
+                function_run_rvhaplo $sample $start $end_region $ec_tool $reference
             fi
-            
-        done   
+
+        done
     done
 done

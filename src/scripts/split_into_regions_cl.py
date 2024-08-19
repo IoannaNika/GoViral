@@ -68,7 +68,7 @@ def main():
         start, end = map_to_correct_region(start, genomic_regions)
 
         # find the idifier in the fastq file
-        os.system("grep -A 1 {} {}.fastq >> {}_{}.fastq".format(identifier, input_path, out_path, str(start)+"_"+str(end)))
+        os.system("grep -A 1 {} {} >> {}_{}.fastq".format(identifier, input_path, out_path, str(start)+"_"+str(end)))
 
     for start,end in genomic_regions:
         # create sam/bam files for each region
