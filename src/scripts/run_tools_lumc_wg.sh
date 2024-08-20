@@ -9,7 +9,7 @@ function_run_cliquesnv(){
     ec_method=$2
 
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
-    out_path="results/cliquesnv/${ec_method}/whole_genome/${sample}/"
+    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/cliquesnv/${ec_method}/whole_genome/${sample}/"
 
     java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path
 }
@@ -20,11 +20,11 @@ function_run_haplodmf(){
     reference=$3
     
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
-    out_path="results/haplodmf/${ec_method}/whole_genome/${sample}/"
+    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/haplodmf/${ec_method}/whole_genome/${sample}/"
 
     cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
     ./haplodmf.sh -i $in_path -r $reference -o $out_path
-    cd ../src
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src
 }
 
 function_run_rvhaplo(){
@@ -33,11 +33,11 @@ function_run_rvhaplo(){
     reference=$3
 
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
-    out_path="results/rvhaplo/${ec_method}/whole_genome/${sample}/"
+    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/rvhaplo/${ec_method}/whole_genome/${sample}/"
 
     cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/
     ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01
-    cd ../src
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src
 }
 
 #### logic
