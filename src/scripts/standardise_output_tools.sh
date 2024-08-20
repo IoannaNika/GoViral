@@ -6,7 +6,7 @@ genomic_regions="(54,1183),(1128,2244),(2179,3235),(3166,4240),(4189,5337),
                         (22537,23609),(23544,24714),(24658,25768),(25712,26835),
                         (26766,27872),(27808,28985),(28699,29768),(29768,29790)"
 
-
+reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
 for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
         
@@ -22,16 +22,18 @@ for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
                 end_region=$(echo $region | cut -d ',' -f 2)
                 region_final="${start}_${end_region}"
 
-                python scripts/standardise_output_tools_regions.py --results_dir results/ --hrt $hrt_tool --ec $ec_tool --region $region_final
+                python scripts/standardise_output_tools_regions.py --results_dir results/ --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
             
             done
         
         # merge region standardised tsv files called "standard_output.tsv" into one file
-        python scripts/merge_standard_output.py --results_dir results/${hrt_tool}/${ec_tool}/per_region/
-  
+        python scripts/merge_standard_output.py --results_dir results/${hrt_tool}/${ec_tool}/per_region/${sample}/
+
+        # standardise the whole genome output
+        python scripts/standardise_output_tools.py --results_dir results/ --hrt $hrt_tool --ec $ec_tool --sample $sample --ref_seq $reference
+        
         done
     
     done
 
 done
-
