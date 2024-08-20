@@ -19,10 +19,12 @@ function_run_haplodmf(){
     ec_method=$2
     reference=$3
     
-    in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/.sam"
-    out_path="results/whole_genome/haplodmf/${ec_method}/per_region/${sample}/"
+    in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
+    out_path="results/haplodmf/${ec_method}/whole_genome/${sample}/"
 
-    /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF/haplodmf.sh -i $in_path -r $reference -o $out_path
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
+    ./haplodmf.sh -i $in_path -r $reference -o $out_path
+    cd ../src
 }
 
 function_run_rvhaplo(){
@@ -31,9 +33,11 @@ function_run_rvhaplo(){
     reference=$3
 
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
-    out_path="results/whole_genome/rvhaplo/${ec_method}/per_region/${sample}/"
+    out_path="results/rvhaplo/${ec_method}/whole_genome/${sample}/"
 
-    /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01
+    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/
+    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01
+    cd ../src
 }
 
 #### logic
