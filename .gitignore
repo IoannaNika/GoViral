@@ -4,6 +4,7 @@ data/*
 *.sbatch
 */__pycache__/*
 */slurms/*
+results/
 ### code for tools
 CliqueSNV/
 HaploDMF/
