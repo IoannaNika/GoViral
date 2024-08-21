@@ -90,11 +90,19 @@ def check_and_update_if_haplotype_exists(standard_output_path: str, region: str,
     Returns:
         bool, True if the haplotype exists and was updated, False otherwise
     """
-    
-    haplotypes = pd.read_csv(standard_output_path, sep="\t", header=0)
+    try:
+        haplotypes = pd.read_csv(standard_output_path, sep="\t", header=0)
+    except: 
+        # file is empty
+        return False
+
+    if haplotypes.shape[0] == 0:
+        return False
 
     for idx, row in haplotypes.iterrows():
+
         same_bool, corrected_seq = compare_sequences(row["sequence"], sequence)
+        
         if row["region"] == region and same_bool:
             # update the row with the corrected sequence
             haplotypes.at[idx, "sequence"] = corrected_seq
@@ -134,6 +142,7 @@ def cut_amplicon(seq: str, ref_seq: str, start: int, end: int) -> str:
 
     # get the amplicon sequence 
     # ensure that the reference sequence is the first sequence in the aligned sequences
+
     if aligned_seqs[0][0] == "seq":
         amplicon_seq = aligned_seqs[0][1][start:end]
     else:
@@ -156,10 +165,16 @@ def read_fasta_file(fasta_file: str) -> List[Tuple[str, str]]:
     Returns:
         list of tuples with the sequence id and sequence
     """
+
+    if not os.path.exists(fasta_file):
+        print("File does not exist", fasta_file)
+        return []
+
     seqs = []
+
     with open(fasta_file, "r") as f:
         for record in SeqIO.parse(f, "fasta"):
-            seqs.append((record.id, record.seq))
+            seqs.append((record.id, str(record.seq).upper()))
     
     return seqs
 
@@ -186,6 +201,10 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
     # read fasta file
     seqs = read_fasta_file(fasta_file_path)
 
+    if len(seqs) == 0:
+        print("No sequences found", fasta_file_path)
+        return
+
     # make output_file within the same directory named standard_output.tsv
     output_file = os.path.join(out_file_dir, "standard_output.tsv")
 
@@ -202,14 +221,17 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
                 start, end = region
                 region_str = "{}_{}".format(start, end)
                 # cut the amplicon
+              
                 reconstructed_amplicon = cut_amplicon(seq, ref_seq, start, end)
+                
                 # check if for the same genomic region, a haplotype with the same sequence has already been written
                 # if so, skip writing it
                 # if not, write it
-                if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
+                if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
                     f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
         f.close()
+
     return
 
 def process_haplodmf_output(out_file_dir: str, genomic_regions: List[Tuple[int, int]], ref_seq: str):
@@ -231,6 +253,10 @@ def process_haplodmf_output(out_file_dir: str, genomic_regions: List[Tuple[int, 
     
     seqs = read_fasta_file(fasta_file)
 
+    if len(seqs) == 0:
+        print("No sequences found", fasta_file_path)
+        return
+
     # make output_file within the same directory named standard_output.tsv
     output_file = os.path.join(out_file_dir, "standard_output.tsv")
     f = open(output_file, "w")
@@ -249,7 +275,7 @@ def process_haplodmf_output(out_file_dir: str, genomic_regions: List[Tuple[int, 
             # cut the amplicon
             reconstructed_amplicon = cut_amplicon(seq, ref_seq, start, end)
 
-            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
+            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
                 f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
     f.close()
@@ -260,16 +286,22 @@ def process_rvhaplo_output(out_file_dir: str, genomic_regions: List[Tuple[int, i
     """
     Args:
         out_file_dir: str, path to the output directory
-    
-    Returns:
-        None
     """
     
     fasta_file = os.path.join(out_file_dir, "rvhaplo_haplotypes.fasta")
 
+    if not os.path.exists(fasta_file):
+        print("File does not exist", fasta_file)
+        return
+        
     seqs = read_fasta_file(fasta_file)
 
+    if len(seqs) == 0:
+        print("No sequences found", fasta_file)
+        return
+
     output_file = os.path.join(out_file_dir, "standard_output.tsv")
+
     f = open(output_file, "w")
     f.write("haplotype_id\tregion\trel_abundance\tsequence\n")
 
@@ -277,15 +309,17 @@ def process_rvhaplo_output(out_file_dir: str, genomic_regions: List[Tuple[int, i
         # >haplotype_0_length_25801_abundance_1_number_of_reads_4040_depth_169.81744586900103
         haplotype_id = sample_id.split("_")[1]
         rel_abundance = float(sample_id.split("_")[5])
+
         # this is a full length sequence
         seq = seq.upper().strip()
-
         for region in genomic_regions:
             start, end = region
             region_str = "{}_{}".format(start, end)
+
             # cut the amplicon
             reconstructed_amplicon = cut_amplicon(seq, ref_seq, start, end)
-            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
+            
+            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
                 f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
     f.close()
@@ -318,6 +352,9 @@ def main():
     ec = args.ec
     sample = args.sample
     ref_seq = args.ref_seq
+
+    # read the genomic sequence of the reference
+    ref_seq = str(SeqIO.read(ref_seq, "fasta").seq.upper())
 
     genomic_regions = [(54, 1183), (1128, 2244), (2179, 3235), (3166, 4240), (4189, 5337),
                 (5286, 6358), (6307, 7379), (7328, 8363), (8282, 9378), (9327, 10429),

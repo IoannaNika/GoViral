@@ -46,7 +46,7 @@ reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
 for sample in "03_50" "01_100" "02_100" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"; do 
 
-    for ec_tool in "canu" "hifiasm" "lorma" "original"; do
+    for ec_tool in "cliquesnv" "hifiasm" "lorma" "original"; do
    
         if [[ "$tool_to_run" == "cliquesnv" ]]; then
             function_run_cliquesnv $sample $ec_tool
