@@ -32,8 +32,16 @@ def process_cliquesnv_output(out_file_dir: str):
         None
     """
     # locate .fasta file
-    fasta_file = [f for f in os.listdir(out_file_dir) if f.endswith(".fasta")][0]
-    fasta_file_path = os.path.join(out_file_dir, fasta_file)    
+    sample = out_file_dir.split("/")[-2].strip()
+    region = out_file_dir.split("/")[-1].strip()
+ 
+    fasta_file_path = os.join(out_file_dir, sample + "_" + region + ".fasta")
+    
+    # if file does not exist, return
+    if not os.path.exists(fasta_file_path):
+        print("File does not exist", fasta_file_path)
+        return
+
     # read fasta file
     seqs = read_fasta_file(fasta_file_path)
     # figure out if it is per region or whole genome
@@ -43,6 +51,7 @@ def process_cliquesnv_output(out_file_dir: str):
 
     # make output_file within the same directory named standard_output.tsv
     output_file = os.path.join(out_file_dir, "standard_output.tsv")
+
     with open(output_file, "w") as f:
         f.write("haplotype_id\tregion\trel_abundance\tsequence\n")
         for sample_id, seq in seqs:
@@ -71,10 +80,18 @@ def process_haplodmf_output(out_file_dir: str):
     """
 
     fasta_file = os.path.join(out_file_dir, "haplodmf_haplotypes.fasta")
+
+    # if file does not exist, return
+    if not os.path.exists(fasta_file):
+        print("File does not exist", fasta_file)
+        return
+
     seqs = read_fasta_file(fasta_file)
     region = out_file_dir.split("/")[-1]
+    
     # make output_file within the same directory named standard_output.tsv
     output_file = os.path.join(out_file_dir, "standard_output.tsv")
+    
     f = open(output_file, "w")
     f.write("haplotype_id\tregion\trel_abundance\tsequence\n")
 
@@ -101,6 +118,11 @@ def process_rvhaplo_output(out_file_dir: str):
     
     fasta_file = os.path.join(out_file_dir, "rvhaplo_haplotypes.fasta")
 
+    # if file does not exist, return
+    if not os.path.exists(fasta_file):
+        print("File does not exist", fasta_file)
+        return
+
     seqs = read_fasta_file(fasta_file)
 
     region = out_file_dir.split("/")[-1]
@@ -111,7 +133,6 @@ def process_rvhaplo_output(out_file_dir: str):
 
     for sample_id, seq in seqs:
         # >haplotype_0_length_25801_abundance_1_number_of_reads_4040_depth_169.81744586900103
-
         haplotype_id = sample_id.split("_")[1]
         rel_abundance = float(sample_id.split("_")[5])
         seq = seq.upper().strip()

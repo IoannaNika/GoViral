@@ -174,9 +174,15 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
     Returns:
         None
     """
+
+    sample = out_file_dir.split("/")[-1].strip()
     # locate .fasta file
-    fasta_file = [f for f in os.listdir(out_file_dir) if f.endswith(".fasta")][0]
-    fasta_file_path = os.path.join(out_file_dir, fasta_file)    
+    fasta_file_path = os.path.join(out_file_dir, sample + ".fasta")
+    
+    if not os.path.exists(fasta_file_path):
+        print("File does not exist", fasta_file_path)
+        return
+    
     # read fasta file
     seqs = read_fasta_file(fasta_file_path)
 
@@ -218,6 +224,11 @@ def process_haplodmf_output(out_file_dir: str, genomic_regions: List[Tuple[int, 
     """
 
     fasta_file = os.path.join(out_file_dir, "haplodmf_haplotypes.fasta")
+
+    if not os.path.exists(fasta_file):
+        print("File does not exist", fasta_file)
+        return
+    
     seqs = read_fasta_file(fasta_file)
 
     # make output_file within the same directory named standard_output.tsv
