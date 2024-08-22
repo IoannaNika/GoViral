@@ -5,6 +5,7 @@ data/*
 */__pycache__/*
 */slurms/*
 results/
+*.pyc
 ### code for tools
 CliqueSNV/
 HaploDMF/
