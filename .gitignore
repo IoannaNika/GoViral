@@ -6,6 +6,7 @@ data/*
 */slurms/*
 results/
 *.pyc
+*.coverage
 ### code for tools
 CliqueSNV/
 HaploDMF/
@@ -13,3 +14,4 @@ QuasiSeq/
 RVHaplo/
 Strainline/
 src/scripts/__pycache__/
+
