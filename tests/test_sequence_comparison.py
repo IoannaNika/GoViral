@@ -1,5 +1,5 @@
 import unittest
-from src.scripts.standardise_output_tools_wg import compare_sequences, check_and_update_if_haplotype_exists
+from src.utils.utils import compare_sequences, check_and_update_if_haplotype_exists
 import os
 import pandas as pd
 
