@@ -1,3 +1,7 @@
+import editdistance
+from typing import Tuple
+
+
 def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region:dict) -> float:
     """
     Calculates the average edit distance across all genomic regions and true haplotypes
