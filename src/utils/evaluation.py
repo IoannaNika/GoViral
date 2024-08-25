@@ -69,11 +69,11 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
         if true_number_haps_per_sample_region[sample_name][region]['Wuhan'] == 0:
             recall_wuhan_region = 1
         else:
-            recall_wuhan_region = max (number_of_haplotypes_per_region[region]['Wuhan'] / true_number_haps_per_sample_region[sample_name][region]['Wuhan'], 1)
+            recall_wuhan_region = min (number_of_haplotypes_per_region[region]['Wuhan'] / true_number_haps_per_sample_region[sample_name][region]['Wuhan'], 1)
         if true_number_haps_per_sample_region[sample_name][region]['Omicron'] == 0:
             recall_omicron_region = 1
         else:
-            recall_omicron_region = max (number_of_haplotypes_per_region[region]['Omicron'] / true_number_haps_per_sample_region[sample_name][region]['Omicron'], 1)
+            recall_omicron_region = min (number_of_haplotypes_per_region[region]['Omicron'] / true_number_haps_per_sample_region[sample_name][region]['Omicron'], 1)
 
         recall_wuhan.append(recall_wuhan_region)
         recall_omicron.append(recall_omicron_region)

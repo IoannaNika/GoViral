@@ -48,6 +48,18 @@ class TestEvaluationOfHRTOutputOnLUMCScript(unittest.TestCase):
 
         dup_ratio = calculate_duplication_ratio(num_haps_per_region, true_num_of_haps_per_sample_per_region, sample_name)
         self.assertEqual(dup_ratio, 2)
+    
+    def test_calculate_recall_not_all_haps_reconstructed(self):
+        num_haps_per_region = {"test_region":{"Wuhan": 1, "Omicron": 0}}
+        sample_name = "test"
+        true_num_of_haps_per_sample_per_region = {"test": {"test_region": {"Wuhan": 1, "Omicron": 1}}}
+        recall_wuhan, recall_omicron = calculate_recall(num_haps_per_region, true_num_of_haps_per_sample_per_region, sample_name)
+
+        self.assertEqual(recall_wuhan, 1)
+        self.assertEqual(recall_omicron, 0)
+
+        dup_ratio = calculate_duplication_ratio(num_haps_per_region, true_num_of_haps_per_sample_per_region, sample_name)
+        self.assertEqual(dup_ratio, 0.5)
 
     def test_calculate_absolute_relative_abundance_error(self): 
         true_abs_per_sample_per_region  = {"test": {"test_region":{"Wuhan": 0.25, "Omicron": 0.75}}}
