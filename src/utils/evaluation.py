@@ -78,8 +78,8 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
         recall_wuhan.append(recall_wuhan_region)
         recall_omicron.append(recall_omicron_region)
 
-    recall_wuhan = sum(recall_wuhan) / len(recall_wuhan)
-    recall_omicron = sum(recall_omicron) / len(recall_omicron)
+    recall_wuhan = round(sum(recall_wuhan) / len(recall_wuhan), 2)
+    recall_omicron = round(sum(recall_omicron) / len(recall_omicron), 2)
 
     return recall_wuhan, recall_omicron
 
@@ -104,7 +104,7 @@ def calculate_duplication_ratio(number_of_haplotypes_per_region:dict, true_numbe
         duplication_ratio = duplication_ratio / sum(true_number_haps_per_sample_region[sample_name][region].values())
         duplication_ratios.append(duplication_ratio)
 
-    duplication_ratio = sum(duplication_ratios) / len(duplication_ratios)
+    duplication_ratio = round(sum(duplication_ratios) / len(duplication_ratios), 2)
 
     return duplication_ratio
 

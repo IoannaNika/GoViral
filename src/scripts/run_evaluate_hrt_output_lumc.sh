@@ -10,7 +10,7 @@ for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "
 
         for hr_tool in "haplodmf" "cliquesnv" "rvhaplo"; do
 
-            for mode in "per_region"; do
+            for mode in "whole_genome" "per_region"; do
 
                 sample_name="${sample}-${ec_tool}-${hr_tool}-${mode}"
                 

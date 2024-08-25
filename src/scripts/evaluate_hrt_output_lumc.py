@@ -5,7 +5,7 @@ from Bio import SeqIO
 import editdistance
 import os
 from typing import List, Tuple
-from utils.statistics import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, calculate_duplication_ratio
+from utils.evaluation import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, closest_haplotype, calculate_relative_absolute_abundance_error
 
 def is_the_coverage_sufficient(reads: pd.DataFrame, gr: str, low_limit: int = 100) -> bool:
     """
