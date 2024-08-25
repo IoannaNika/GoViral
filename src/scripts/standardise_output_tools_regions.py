@@ -3,6 +3,8 @@ import os
 from typing import Tuple
 import pandas as pd
 from Bio import SeqIO
+from utils.utils import cut_amplicon
+
 
 def read_fasta_file(fasta_file: str) -> list[Tuple[str, str]]:
     """
@@ -21,12 +23,13 @@ def read_fasta_file(fasta_file: str) -> list[Tuple[str, str]]:
     return seqs
 
 
-def process_cliquesnv_output(out_file_dir: str):
+def process_cliquesnv_output(out_file_dir: str, ref_seq:str):
     """
     Function to process the output of cliquesnv and standardize it
 
     Args:
         out_file_dir: str, path to the output directory
+        out_file_dir: str, reference sequence
 
     Returns:
         None
@@ -35,7 +38,7 @@ def process_cliquesnv_output(out_file_dir: str):
     sample = out_file_dir.split("/")[-2].strip()
     region = out_file_dir.split("/")[-1].strip()
  
-    fasta_file_path = os.join(out_file_dir, sample + "_" + region + ".fasta")
+    fasta_file_path = os.path.join(out_file_dir, sample + "_" + region + ".fasta")
     
     # if file does not exist, return
     if not os.path.exists(fasta_file_path):
@@ -56,16 +59,21 @@ def process_cliquesnv_output(out_file_dir: str):
         f.write("haplotype_id\tregion\trel_abundance\tsequence\n")
         for sample_id, seq in seqs:
             # >haplotype_id_fr_rel_abundance
-            haplotype_id = sample_id.split("_")[0][1:] 
-            rel_abundance = float(sample_id.split("_")[1])
+            haplotype_id = sample_id.split("_")[0].strip()
+            rel_abundance = float(sample_id.split("_")[2])
             seq = seq.upper().strip()
-
-            # remove surrounding Ns
-            seq = seq.strip("N")
-
-            f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region, rel_abundance, seq))
+            start_region = int(region.split("_")[0])
+            end_region = int(region.split("_")[1])
+            try:
+                reconstructed_amplicon = cut_amplicon(seq, ref_seq, start_region, end_region)
+            except: 
+                print("Could not reconstruct the amplicon")
+                continue
+            print("New haplotype with id: ", haplotype_id)
+            f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region, rel_abundance, reconstructed_amplicon))
 
         f.close()
+
     return
 
 def process_haplodmf_output(out_file_dir: str):
@@ -149,6 +157,8 @@ def main():
     parser.add_argument('--ec', dest='ec', type=str, required=True, help='Error correction tool')
     parser.add_argument('--sample', dest='sample', type=str, required=True, help='LUMC sample name')
     parser.add_argument('--region', dest='region', type=str, required=True, help='Genomic region')
+    parser.add_argument('--ref_seq', dest='ref_seq', type=str, required=True, help='Reference sequence')
+
     args = parser.parse_args()
 
     # folder structure is as follows:
@@ -168,12 +178,14 @@ def main():
     ec = args.ec
     region = args.region
     sample = args.sample
-
+    ref_seq = args.ref_seq
+    ref_seq = str(SeqIO.read(ref_seq, "fasta").seq.upper())
+    
     # get the output directory for the tool
     outptut_dir = os.path.join(results_dir, hrt, ec, "per_region", sample, region)
 
     if hrt == "cliquesnv":
-        process_cliquesnv_output(outptut_dir)
+        process_cliquesnv_output(outptut_dir, ref_seq)
     elif hrt == "haplodmf":
         process_haplodmf_output(outptut_dir)        
     elif hrt == "rvhaplo":

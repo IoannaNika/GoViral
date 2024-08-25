@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-from ..utils.utils import cut_amplicon
+from utils.utils import cut_amplicon
 from Bio import SeqIO
 import editdistance
 import os
@@ -24,8 +24,10 @@ def is_the_coverage_sufficient(reads: pd.DataFrame, gr: str, low_limit: int = 10
     reads_region = reads[(reads[2] == start_gr) & (reads[3] == end_gr)]
     reads_coverage = len(reads_region)
     if reads_coverage >= low_limit:
+        print(start_gr, end_gr, "Enough coverage")
         return True
     else:
+        print(start_gr, end_gr, "Not enough coverage")
         return False
 
 def get_true_ab_per_sample() -> dict:
@@ -78,8 +80,9 @@ def true_abundances_and_haplotypes_per_sample_per_region(genomic_regions: List[T
     """
 
     true_abundances_per_sample_per_region = {}
-    samples = ['01_100', '02_100' '03_50', '04_75', '05_90', "06_95", '07_98', '08_0', '09_0']
+    samples = ['01_100', '02_100', '03_50', '04_75', '05_90', "06_95", '07_98', '08_0', '09_0']
     true_number_haps_per_sample_region = {}
+
 
     for region in genomic_regions:
 
@@ -89,24 +92,41 @@ def true_abundances_and_haplotypes_per_sample_per_region(genomic_regions: List[T
         if editdistance.eval(wuhan_amplicon, omicron_amplicon) > 0:
 
             for sample in samples:
+
                 region_key = f"{region[0]}_{region[1]}"
-                true_abundances_per_sample_per_region[sample] = {f"{region_key}": get_true_ab_per_sample()[sample]}
-                true_number_haps_per_sample_region[sample] = {f"{region_key}": get_n_haps_per_sample()[sample]}
+
+                if sample not in true_abundances_per_sample_per_region.keys():
+                    true_abundances_per_sample_per_region[sample] = {}
+                if sample not in true_number_haps_per_sample_region.keys():
+                    true_number_haps_per_sample_region[sample] = {}
+                    
+                true_abundances_per_sample_per_region[sample].update({f"{region_key}": get_true_ab_per_sample()[sample]})
+                true_number_haps_per_sample_region[sample].update({f"{region_key}": get_n_haps_per_sample()[sample]})
 
         else:
 
             for sample in samples:
+
                 region_key = f"{region[0]}_{region[1]}"
+
+                if sample not in true_abundances_per_sample_per_region.keys():
+                    true_abundances_per_sample_per_region[sample] = {}
+                if sample not in true_number_haps_per_sample_region.keys():
+                    true_number_haps_per_sample_region[sample] = {}
 
                 if sample in ['08_0', '09_0']:
 
-                    true_abundances_per_sample_per_region[sample] = {f"{region_key}": {"Wuhan": 0, "Omicron": 1}}
-                    true_number_haps_per_sample_region[sample] = {f"{region_key}": {"Wuhan": 0, "Omicron": 1}}
+                    true_abundances_per_sample_per_region[sample].update({f"{region_key}": {"Wuhan": 0, "Omicron": 1}})
+                    true_number_haps_per_sample_region[sample].update({f"{region_key}": {"Wuhan": 0, "Omicron": 1}})
                 else: 
-                    true_abundances_per_sample_per_region[sample] = {f"{region_key}": {"Wuhan": 1, "Omicron": 0}}
-                    true_number_haps_per_sample_region[sample] = {f"{region_key}": {"Wuhan": 1, "Omicron": 0}}
-
+                    true_abundances_per_sample_per_region[sample].update({f"{region_key}": {"Wuhan": 1, "Omicron": 0}})
+                    true_number_haps_per_sample_region[sample].update({f"{region_key}": {"Wuhan": 1, "Omicron": 0}})
+    
+    print("True abundances per sample per region")
+    print(true_abundances_per_sample_per_region)
+    
     return true_abundances_per_sample_per_region, true_number_haps_per_sample_region    
+
 
 def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplicon:str, true_abundances_per_sample_per_region:dict, region:str, abundance_per_region:dict, sample_name:str) -> Tuple[str, int]:
     """
@@ -139,8 +159,12 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
     else:
         updated_ab_wuhan = abundance_per_region[region]['Wuhan'] + rel_ab
         updated_ab_omicron = abundance_per_region[region]['Omicron'] + rel_ab
+        try: 
+            rel_ab_wuhan = abs(updated_ab_wuhan - true_abundances_per_sample_per_region[sample_name][region]['Wuhan']) / (true_abundances_per_sample_per_region[sample_name][region]['Wuhan'] + 1e-6)
+        except: 
+            print("KeyError: ", true_abundances_per_sample_per_region)
+            raise KeyError
 
-        rel_ab_wuhan = abs(updated_ab_wuhan - true_abundances_per_sample_per_region[sample_name][region]['Wuhan']) / (true_abundances_per_sample_per_region[sample_name][region]['Wuhan'] + 1e-6)
         rel_ab_omicron = abs(updated_ab_omicron - true_abundances_per_sample_per_region[sample_name][region]['Omicron']) / (true_abundances_per_sample_per_region[sample_name][region]['Omicron'] + 1e-6)
 
         if rel_ab_wuhan < rel_ab_omicron:
@@ -162,7 +186,8 @@ def init_edit_distance_from_closest_consensus_per_region(genomic_regions:List[Tu
     edit_distance_from_closest_consensus_per_region = {}
 
     for region in genomic_regions:
-        edit_distance_from_closest_consensus_per_region[region] = {'Wuhan': [], 'Omicron': []}
+        gr_key = str(region[0]) + "_" + str(region[1])
+        edit_distance_from_closest_consensus_per_region[gr_key] = {'Wuhan': [], 'Omicron': []}
 
     return edit_distance_from_closest_consensus_per_region
 
@@ -179,8 +204,8 @@ def update_edit_distance_from_closest_consensus_per_region(edit_distance_from_cl
     Returns:
     edit_distance_from_closest_consensus_per_region: dict, updated edit distance from the closest consensus per region dictionary
     """
-
     edit_distance_from_closest_consensus_per_region[region][haplotype].append(distance)
+
     return edit_distance_from_closest_consensus_per_region
 
 def init_number_of_haplotypes_per_region(genomic_regions:List[Tuple[int, int]]) -> dict:
@@ -197,7 +222,8 @@ def init_number_of_haplotypes_per_region(genomic_regions:List[Tuple[int, int]]) 
     number_of_haplotypes_per_region = {}
 
     for region in genomic_regions:
-        number_of_haplotypes_per_region[region] = {'Wuhan': 0, 'Omicron': 0}
+        gr_key = str(region[0]) + "_" + str(region[1])
+        number_of_haplotypes_per_region[gr_key] = {'Wuhan': 0, 'Omicron': 0}
 
     return number_of_haplotypes_per_region
 
@@ -233,8 +259,8 @@ def init_abundance_per_region(genomic_regions:List[Tuple[int, int]]) -> dict:
     abundance_per_region = {}
 
     for region in genomic_regions:
-        abundance_per_region[region]['Wuhan'] = 0
-        abundance_per_region[region]['Omicron'] = 0
+        gr_key = str(region[0]) + "_" + str(region[1])
+        abundance_per_region[gr_key] = {"Wuhan": 0, "Omicron":0}
 
     return abundance_per_region
 
@@ -269,8 +295,8 @@ def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_reg
     average_edit_distance_omicron = 0
 
     for region in edit_distance_from_closest_consensus_per_region:
-        average_edit_distance_wuhan += edit_distance_from_closest_consensus_per_region[region]['Wuhan']
-        average_edit_distance_omicron += edit_distance_from_closest_consensus_per_region[region]['Omicron']
+        average_edit_distance_wuhan += sum(edit_distance_from_closest_consensus_per_region[region]['Wuhan'])
+        average_edit_distance_omicron += sum(edit_distance_from_closest_consensus_per_region[region]['Omicron'])
     
     average_edit_distance_wuhan = average_edit_distance_wuhan / len(edit_distance_from_closest_consensus_per_region.keys())
     average_edit_distance_omicron = average_edit_distance_omicron / len(edit_distance_from_closest_consensus_per_region.keys())
@@ -392,7 +418,7 @@ def main():
     parser.add_argument('--input', type=str, help='Input file')
     parser.add_argument('--ref_seq', type=str, help='Reference sequence')
     parser.add_argument('--output', type=str, help='Output file')
-    parser.argument('--sample_name', type=str, help='Sample name')
+    parser.add_argument('--sample_name', type=str, help='Sample name')
     parser.add_argument('--reads', type=str, help='Reads file')
     args = parser.parse_args()
 
@@ -404,12 +430,10 @@ def main():
     wuhan_consensus = str(SeqIO.read(wuhan_consensus_path, "fasta").seq.upper())
     omicron_consensus = str(SeqIO.read(omicron_consensus_path, "fasta").seq.upper())
 
-    true_abs_per_hap_per_sample_region, true_n_haps_per_sample_region = true_abundances_and_haplotypes_per_sample_per_region(genomic_regions, wuhan_consensus, omicron_consensus, ref_seq)
-
     ref_seq = args.ref_seq
     ref_seq = str(SeqIO.read(ref_seq, "fasta").seq.upper())
     input_path = args.input
-    input_df = pd.read_csv(input_path, sep='\t', header=None)
+    input_df = pd.read_csv(input_path, sep='\t', header=0)
 
     genomic_regions = [(54, 1183), (1128, 2244), (2179, 3235), (3166, 4240), (4189, 5337),
                 (5286, 6358), (6307, 7379), (7328, 8363), (8282, 9378), (9327, 10429),
@@ -422,6 +446,8 @@ def main():
     # filter genomic regions with insufficient coverage
     genomic_regions = [region for region in genomic_regions if is_the_coverage_sufficient(reads_tsv, f"{region[0]}_{region[1]}")]
 
+    true_abs_per_hap_per_sample_region, true_n_haps_per_sample_region = true_abundances_and_haplotypes_per_sample_per_region(genomic_regions, wuhan_consensus, omicron_consensus, ref_seq)
+
     ##### metrics tracking #####
     edit_distance_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
     number_of_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
@@ -430,23 +456,24 @@ def main():
 
     # iterate over the input file
     for index, row in input_df.iterrows():
-        haplotype_id = row['haplotype_id']
-        region = row['region']
-        rel_ab = float(row['rel_abundance'])
-        seq = row['sequence']
+        haplotype_id = row.iloc[0]
+        region = row.iloc[1]
+        rel_ab = float(row.iloc[2])
+        seq = row.iloc[3]
 
         # is it a region with sufficient coverage?
         if not is_the_coverage_sufficient(reads_tsv, region):
             # dont evaluate regions with insufficient coverage
             continue
 
-        start = region.split(':')[0]
-        end = region.split(':')[1]
+        start = int(region.split('_')[0])
+        end = int(region.split('_')[1])
         # extract wuhan and omicron consensus sequences for the specific genomic region
         wuhan_amplicon = cut_amplicon(wuhan_consensus, ref_seq, start, end)
         omicron_amplicon = cut_amplicon(omicron_consensus, ref_seq, start, end)
 
         closest_hap, ed_from_hap = closest_haplotype(seq, rel_ab, omicron_amplicon, wuhan_amplicon, true_abs_per_hap_per_sample_region, region, abundance_per_region, args.sample_name.split("-")[0])
+        print(closest_hap, " is the closest hap")
 
         # update metrics
         edit_distance_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(edit_distance_from_closest_consensus_per_region, closest_hap, region, ed_from_hap)

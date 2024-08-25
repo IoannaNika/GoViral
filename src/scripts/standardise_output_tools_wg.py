@@ -3,7 +3,7 @@ import os
 from typing import Tuple, List
 import pandas as pd
 from Bio import SeqIO
-from ..utils.utils import cut_amplicon, read_fasta_file, check_and_update_if_haplotype_exists
+from utils.utils import cut_amplicon, read_fasta_file, check_and_update_if_haplotype_exists
 
 def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int, int]], ref_seq: str):
     """
@@ -38,8 +38,8 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
         f.write("haplotype_id\tregion\trel_abundance\tsequence\n")
         for sample_id, seq in seqs:
             # >haplotype_id_fr_rel_abundance
-            haplotype_id = sample_id.split("_")[0][1:] 
-            rel_abundance = float(sample_id.split("_")[1])
+            haplotype_id = sample_id.split("_")[0].strip()
+            rel_abundance = float(sample_id.split("_")[2])
             # this is a full length sequence
             seq = seq.upper().strip()
 
@@ -54,6 +54,7 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
                 # if so, skip writing it
                 # if not, write it
                 if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
+                    print("Haplotype id: ", haplotype_id)
                     f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
         f.close()
