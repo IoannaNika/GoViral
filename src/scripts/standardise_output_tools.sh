@@ -8,13 +8,13 @@ genomic_regions="(54,1183),(1128,2244),(2179,3235),(3166,4240),(4189,5337),
 
 reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
-for hrt_tool in "rvhaplo" "haplodmf"; do
+for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
         
-    for ec_tool in "original" "lorma" "canu" "hifiasm" "original"; do
+    for ec_tool in "lorma" "canu" "hifiasm" "original"; do
         
         for sample in "03_50" "01_100" "02_100" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"; do 
             
-            echo "${ec_tool} ${sample}"  
+            echo "${ec_tool} ${sample} ${hrt_tool}"  
             
             for region in $genomic_regions; do
                     
@@ -24,15 +24,15 @@ for hrt_tool in "rvhaplo" "haplodmf"; do
                 end_region=$(echo $region | cut -d ',' -f 2)
                 region_final="${start}_${end_region}"
 
-                python scripts/standardise_output_tools_regions.py --results_dir results/ --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
+                python -m scripts.standardise_output_tools_regions --results_dir results/ --ref_seq $reference --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
             
             done
         
-        # merge region standardised tsv files called "standard_output.tsv" into one file
-        python scripts/merge_standard_output_files.py --results_dir results/${hrt_tool}/${ec_tool}/per_region/${sample}/
+            # merge region standardised tsv files called "standard_output.tsv" into one file
+            python scripts/merge_standard_output_files.py --results_dir results/${hrt_tool}/${ec_tool}/per_region/${sample}/
 
-        # standardise the whole genome output
-        python scripts/standardise_output_tools_wg.py --results_dir results/ --hrt $hrt_tool --ec $ec_tool --sample $sample --ref_seq $reference
+            # standardise the whole genome output
+            python -m scripts.standardise_output_tools_wg --results_dir results/ --hrt $hrt_tool --ec $ec_tool --sample $sample --ref_seq $reference
         
         done
     
