@@ -37,3 +37,5 @@ for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "
         done
     done
 done
+
+python scripts/summarise_evaluation_across_samples.py --results_file results/results.tsv --output_file results/summary.tsv --split_per_region_and_wg
