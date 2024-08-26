@@ -30,6 +30,8 @@ def main():
     # for each group, calculate the mean of the metrics
     summary = grouped.mean()
 
+    summary = summary.round(2)
+
     # make output directory if it doesn't exist
     output_path = "/".join(args.output_file.split("/")[:-1])
     print(output_path)
