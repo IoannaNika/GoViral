@@ -311,7 +311,7 @@ def main():
     average_edit_distance = calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region)
     average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_haplotypes_per_region)
     recall_omicron, recall_wuhan = calculate_recall(number_of_haplotypes_per_region, true_n_haps_per_sample_region,args.sample_name.split("-")[0])
-    recall = (recall_omicron + recall_wuhan) / 2
+    recall = round((recall_omicron + recall_wuhan) / 2, 2)
     duplication_ratio = calculate_duplication_ratio(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
     avg_rel_abs_ab_error = calculate_relative_absolute_abundance_error(abundance_per_region, true_abs_per_hap_per_sample_region, args.sample_name.split("-")[0])
 
