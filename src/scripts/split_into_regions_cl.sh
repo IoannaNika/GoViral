@@ -25,7 +25,7 @@ function_produce_sam_bam_bed(){
 
 ref_seq="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
-for sample in "03_50" #"01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
+for sample in "03_50" "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"
 do
     ### Lorma
     tool="lorma"
