@@ -39,28 +39,3 @@ for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
     done
 
 done
-
-
-def calculate_duplication_ratio(number_of_haplotypes_per_region:dict, true_number_haps_per_sample_region:dict, sample_name:str) -> float:
-    """
-    Calculates the duplication ratio. The ratio of the number of reconstructed haplotypes to the number of true haplotypes.
-
-    Args:
-    number_of_haplotypes_per_region: dict, number of haplotypes per region dictionary
-    true_number_haps_per_sample_region: dict, number of haplotypes for each sample per region
-    sample_name: str, sample name
-
-    Returns:
-    duplication_ratio: float, duplication ratio
-    """
-    
-    duplication_ratios = []
-    
-    for region in number_of_haplotypes_per_region:
-        duplication_ratio = number_of_haplotypes_per_region[region]['Wuhan'] + number_of_haplotypes_per_region[region]['Omicron']
-        duplication_ratio = duplication_ratio / sum(true_number_haps_per_sample_region[sample_name][region].values())
-        duplication_ratios.append(duplication_ratio)
-
-    duplication_ratio = sum(duplication_ratios) / len(duplication_ratios)
-
-    return duplication_ratio
