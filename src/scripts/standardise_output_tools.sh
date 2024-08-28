@@ -19,6 +19,8 @@ for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
                 start=$(echo $region | cut -d',' -f1)
                 end_region=$(echo $region | cut -d',' -f2)
 
+                region_final="${start}_${end_region}"
+
                 python -m scripts.standardise_output_tools_regions --results_dir results/ --ref_seq $reference --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
             
             done

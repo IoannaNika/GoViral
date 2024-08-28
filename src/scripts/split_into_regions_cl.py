@@ -3,32 +3,7 @@ import argparse
 import os
 import sys
 import pandas as pd
-
-def map_to_correct_region(start, genomic_regions):
-    """
-    Function to map a read to the correct genomic region
-    
-    Args:
-    start: int, start position of the read
-    genomic_regions: list of tuples, genomic regions
-
-    Returns:
-    start: int, start position of the read
-    end: int, end position of the read
-    """
-
-    distances = {}
-    
-    for i in range(len(genomic_regions)):
-        # calculate distance from start points
-        dist_start = abs(genomic_regions[i][0] - start)
-        distances[i] = dist_start
-
-    # find the key with minimum distance
-    min_key = min(distances, key=distances.get)
-
-    return genomic_regions[min_key][0], genomic_regions[min_key][1]
-
+from utils.utils import map_to_correct_region
 
 def main(): 
     parser = argparse.ArgumentParser(description='Split fastq file into genomic regions')
