@@ -5,8 +5,11 @@ data/*
 */__pycache__/*
 */slurms/*
 results/
+src/data/example_data/
 *.pyc
 *.coverage
+example/
+lightning_logs/
 ### code for tools
 CliqueSNV/
 HaploDMF/
@@ -14,4 +17,6 @@ QuasiSeq/
 RVHaplo/
 Strainline/
 src/scripts/__pycache__/
+
+
 
