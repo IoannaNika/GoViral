@@ -176,3 +176,52 @@ def check_and_update_if_haplotype_exists(standard_output_path: str, region: str,
             return True
         
     return False
+
+
+def map_to_correct_region(start: int, genomic_regions: List[Tuple[int, int]]) -> Tuple[int, int]:
+    """
+    Function to map a read to the correct genomic region
+    
+    Args:
+    start: int, start position of the read
+    genomic_regions: list of tuples, genomic regions
+
+    Returns:
+    start: int, start position of the read
+    end: int, end position of the read
+    """
+
+    distances = {}
+    
+    for i in range(len(genomic_regions)):
+        # calculate distance from start points
+        dist_start = abs(genomic_regions[i][0] - start)
+        distances[i] = dist_start
+
+    # find the key with minimum distance
+    min_key = min(distances, key=distances.get)
+
+    return genomic_regions[min_key][0], genomic_regions[min_key][1]
+
+
+def get_genomic_regions(primers_file: str) -> List[Tuple[int, int]]:
+    """
+    # TODO write description
+    """
+    primers = pd.read_csv(primers_file, sep="\t", header=None)
+    primers.columns = ["chr", "start", "end", "name_1", "name_2", "strand"]
+    genomic_regions = []
+
+     # read in pairs of 2 rows
+    for i in range(0, len(primers), 2):
+        # get positive strand info for reference genome
+        pos_strand = primers.iloc[i]
+        # get negative strand info for reference genome
+        neg_strand = primers.iloc[i+1]
+
+        seq_start = int(pos_strand["end"])
+        seq_end = int(neg_strand["start"])
+
+        genomic_regions.append((seq_start, seq_end))
+
+    return genomic_regions
