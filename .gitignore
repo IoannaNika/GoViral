@@ -10,6 +10,9 @@ src/data/example_data/
 *.coverage
 example/
 lightning_logs/
+
+goViral/fine_tuned_model/
+
 ### code for tools
 CliqueSNV/
 HaploDMF/
