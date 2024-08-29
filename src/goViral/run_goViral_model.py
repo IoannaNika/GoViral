@@ -20,9 +20,9 @@ from utils.utils import get_genomic_regions
 
 def main(): 
     parser = argparse.ArgumentParser(description="Output predictions for pairs of reads")
-    parser.add_argument('--primers', dest = 'primers', required=True, type=str, help="File containing primer positions. To be used to derive genomic regions")
     parser.add_argument('--outdir', dest = 'outdir', required=True, type=str, help="output directory")
     parser.add_argument('--path_to_dataset', dest = 'path_to_dataset', required=True, type=str, help="Path to input dataset")
+    parser.add_argument('--gr_start', dest = 'gr_start', required=True, type=int, help="Genomic region start, for which the predictions are to be made")
     args = parser.parse_args()
     
     out_file_path = os.path.join(args.outdir, "predictions.tsv")
@@ -47,20 +47,18 @@ def main():
     # more than 1 GPUs not supported
     trainer = pl.Trainer(devices=1, accelerator='gpu', enable_progress_bar=False)
 
+    
 
-    genomic_regions = get_genomic_regions(args.primers)
+    data = AmpliconReads(input_path = args.path_to_dataset, start = args.gr_start, test_mode = True)
+    
+    if data.length == 0: 
+        print("No data found for the given genomic region")
+        return
+    
+    datal = DataLoader(data, batch_size = 20, shuffle=False, pin_memory=True, num_workers=4, prefetch_factor=8)
 
-    for gr in genomic_regions: 
-
-        data = AmpliconReads(input_path = args.path_to_dataset, start = int(gr[0]), test_mode = True)
-        
-        if data.length == 0: 
-            continue
-        
-        datal = DataLoader(data, batch_size = 20, shuffle=False, pin_memory=True, num_workers=4, prefetch_factor=8)
-
-        out =  trainer.predict(model, dataloaders = datal)
-        
+    out =  trainer.predict(model, dataloaders = datal)
+    
 
 if __name__ == "__main__":
     sys.exit(main())

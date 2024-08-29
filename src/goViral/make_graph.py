@@ -3,7 +3,6 @@ import sys
 import pandas as pd
 import igraph as ig
 import random
-from sklearn.metrics import homogeneity_score, completeness_score
 import os
 
 def get_sequence_ids(results):
@@ -110,7 +109,7 @@ def write_predicted_communities_to_file(predicted_communities, vertex_to_sequenc
 
 
 def main():
-    parser = argparse.ArgumentParser(description="")
+    parser = argparse.ArgumentParser(description="Create graph and apply community detection")
     parser.add_argument('--results', dest = 'results', required=True, type=str, help="tsv file with predictions")
     parser.add_argument('--output', dest = 'output', required=True, type=str, help="output file with community predictions")
     args = parser.parse_args()

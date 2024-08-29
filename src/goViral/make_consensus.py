@@ -10,8 +10,18 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import sys
 from utils.utils import check_and_update_if_haplotype_exists
+from typing import IO, Any
 
-def make_output_file(output_file_name):
+def make_output_file(output_file_name: str) -> IO[Any]:
+    """
+    Create the output file and write the header
+
+    Args:
+    output_file_name: The name of the output file
+
+    Returns:
+    file: The file object
+    """    
     if os.path.exists(output_file_name):
         os.remove(output_file_name)
     
@@ -28,7 +38,16 @@ def clean_temp_files():
         os.remove("temp_output.fasta")
     return
 
-def mafft_alignment(sequences):
+def mafft_alignment(sequences: list) -> None:
+    """
+    Perform multiple sequence alignment using mafft
+
+    Args:
+    sequences: List of sequences to be aligned
+
+    Returns:
+    None
+    """
     # clear any previous temp files
     if os.path.exists("temp_input.fasta"):
         os.remove("temp_input.fasta")

@@ -10,6 +10,17 @@ from multiprocessing import Process
 from Bio import SeqIO
 
 def get_bams_and_beds(ref_seq_file_path:str, input_fastq_file_path:str) -> str:
+    """
+    Maps the sequencing reads to their corresponding genomic region and strand
+
+    Args:
+    ref_seq_file_path: Path to the reference sequence file
+    input_fastq_file_path: Path to the input file containing the fastq reads
+
+    Returns:
+    bed_file: Path to the bed file
+    """
+    
     output_file = "/".join(input_fastq_file_path.split(".")[:-1])
     os.system("minimap2 -ax map-pb {} {} > {}.sam".format(ref_seq_file_path, input_fastq_file_path, output_file))
     os.system("samtools view -bS {}.sam > {}.bam".format(output_file, output_file))
