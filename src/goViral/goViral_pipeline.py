@@ -13,9 +13,10 @@ def main():
     parser.add_argument('--coverage_limit', dest = 'coverage_limit', default=100, required=False, type=int, help="Coverage limit for subsampling. How many reads to consider in each subsample")
     parser.add_argument('--seed_limit', dest = 'seed_limit', required=False, default=100, type=int, help="Seed limit for subsampling. How many subsamples to consider")
     parser.add_argument('--follow_reccomendations', action='store_true', help="Follow reccomendations for seed limit. Overrides seed limit if set")
-    parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=False, default=0.1, type=float, help="Abundance threshold for filtering out low abundance sequences")
-    
+    parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=False, default=0.01, type=float, help="Abundance threshold for filtering out low abundance sequences")
     args = parser.parse_args()
+
+    print("Recommendation setting: ", args.follow_reccomendations)
 
     os.system(f"python -m goViral.make_dataset --fastq {args.input_fastq} --primers {args.primers} --ref_seq {args.ref_seq} --out {args.directory}/reads.tsv")
     
@@ -30,6 +31,8 @@ def main():
 
     reads_tsv_file = os.path.join(args.directory, "reads.tsv")
     reads = pd.read_csv(reads_tsv_file, sep='\t')
+
+    reads.columns = ["read_id", "sequence", "start", "end", "strand"]
     
     genomic_regions = get_genomic_regions(args.primers)
 
@@ -54,6 +57,7 @@ def main():
         if args.seed_limit < low_limit and not args.follow_reccomendations:
             print("Seed limit might be too low. Recommended seed limit is: ", low_limit, " for the given coverage limit: ", args.coverage_limit, "and read count: ", len(reads), " at genomic region start: ", gr_start)
 
+        
         if args.follow_reccomendations:
             print("Following reccomendations for seed limit, setting seed limit to: ", low_limit)
             seed_limit = low_limit
