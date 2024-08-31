@@ -1,4 +1,15 @@
-def parse_fastq_ONT(fastq_file):
+from typing import Dict
+
+def parse_fastq_ONT(fastq_file: str) -> Dict[str, str]:
+    """
+    Function to parse a fastq file and return a dictionary of reads with read name as key and read sequence as value
+
+    Args:
+        fastq_file: str, path to the fastq file
+
+    Returns:
+        dict, a dictionary with read name as key and read sequence as value
+    """
 
     reads = {}
 

@@ -5,26 +5,64 @@ import sys
 import argparse
 from Bio import SeqIO
 import subprocess
+from typing import Tuple
 
-def simulate_ONT_HQ_reads(directory, identifier, cores): 
+def simulate_ONT_HQ_reads(directory: str, identifier: str, cores: int) -> None:
+    """
+    Function to simulate ONT HQ reads using PBSIM
+
+    Args:
+        directory: str, directory to store the reads and where the template is stored
+        identifier: str, identifier for the reads
+        cores: int, number of cores to use for the simulation
+    """
     os.system("pbsim --strategy templ --method errhmm --errhmm data/error_models/ERRHMM-ONT-HQ.model --template {}/{}.template --prefix {}/{}".format(directory, identifier, directory, identifier))
     return
 
-def simulate_hifi_reads(directory, identifier, cores):
+def simulate_hifi_reads(directory: str, identifier: str, cores: int) -> None:
+    """
+    Function to simulate HiFi reads using PBSIM
+
+    Args:
+        directory: str, directory to store the reads and where the template is stored
+        identifier: str, identifier for the reads
+        cores: int, number of cores to use for the simulation
+    """
+
     os.system("pbsim --strategy templ --method errhmm --errhmm data/error_models/ERRHMM-SEQUEL.model  --template {}/{}.template --pass-num 10 --prefix {}/{}".format(directory, identifier, directory, identifier))
     os.system("samtools view -bS {}/{}.sam > {}/{}.bam".format(directory, identifier, directory, identifier))
-    os.system("ccs {}/{}.bam -j {} {}/{}.fastq".format(directory, identifier, cores, directory, identifier))
+    os.system("ccs {}/{}.bam -j {} {}/{}.fastq".format(directory, identifier, str(cores), directory, identifier))
     return
 
-def parse_R_output(output):
-    # parse output from R script
+def parse_R_output(output: str) -> Tuple[str, str]:
+    """
+    Function to parse the output from the R script to get the end positions of the primers defining the amplicon
+
+    Args:
+        output: str, output from the R script
+    
+    Returns:
+        Tuple[str, str], start position of the first primer and the end position of the second primer
+    """
+
     output = output.split("\n")
     start = output[1].split(" ")[1]
     end = output[4].split(" ")[1]
     return start, end
 
-def get_amplicon_positions(Fprob, Rprob, seq_path):
-    # call r script to get amplicon positions
+def get_amplicon_positions(Fprob: str, Rprob: str, seq_path: str) -> Tuple[int, int]:
+    """
+    Function to get the positions of the amplicon based on the primers
+
+    Args:
+        Fprob: str, forward primer
+        Rprob: str, reverse primer
+        seq_path: str, path to the sequence file
+    
+    Returns:
+        Tuple[int, int], start and end positions of the amplicon
+    """
+   
     results = subprocess.run(["Rscript match_primers.R " + Fprob + " " + Rprob + " " + seq_path], shell=True, capture_output=True, text=True)
     results = parse_R_output(results.stdout)
     start = int(results[0]) + len(Fprob)
@@ -32,19 +70,22 @@ def get_amplicon_positions(Fprob, Rprob, seq_path):
     return start, end
 
 
-def simulate_ONT_HQ_reads(directory, identifier, cores): 
-    os.system("pbsim --strategy templ --method errhmm --errhmm data/error_models/ERRHMM-ONT-HQ.model --template {}/{}.template --prefix {}/{}".format(directory, identifier, directory, identifier))
-    return
+def create_template(input_fasta: str, seq_path: str, s_id, primers: str, n_templates: int) -> str:
+    """
+    Function to create the content for the .template file for the read simulation
 
-def simulate_hifi_reads(directory, identifier, cores):
-    os.system("pbsim --strategy templ --method errhmm --errhmm data/error_models/ERRHMM-SEQUEL.model  --template {}/{}.template --pass-num 10 --prefix {}/{}".format(directory, identifier, directory, identifier))
-    os.system("samtools view -bS {}/{}.sam > {}/{}.bam".format(directory, identifier, directory, identifier))
-    os.system("ccs {}/{}.bam -j {} {}/{}.fastq".format(directory, identifier, cores, directory, identifier))
-    return
+    Args:
+        input_fasta: str, path to the input fasta file, contains all the sequences
+        seq_path: str, path to the sequence file
+        s_id: str, sequence id
+        primers: str, path to the primer file
+        n_templates: int, number of templates to create per sequence
+    
+    Returns:
+        str, content for the .template file
+    """
 
-
-def create_template(input_fasta, seq_path, s_id, primers, n_templates):
-    primers_df = pd.read_csv(template, sep='\t', header=None)
+    primer_df = pd.read_csv(primers, sep='\t', header=None)
     primer_df.columns = ["chr", "start", "end", "name_1", "score", "strand", "primer"]
     final_template = "" 
 

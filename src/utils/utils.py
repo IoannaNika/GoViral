@@ -206,7 +206,14 @@ def map_to_correct_region(start: int, genomic_regions: List[Tuple[int, int]]) ->
 
 def get_genomic_regions(primers_file: str, mode:int = 1) -> List[Tuple[int, int]]:
     """
-    # TODO write description
+    Function to read the primers file and return the genomic regions
+
+    Args:
+        primers_file: str, path to the primers file
+        mode: int, mode of the primers file, 1 if the file has 6 columns, 2 if the file has 7 columns. start and end columns are the 2nd and 3rd columns respectively
+
+    Returns:
+        list of tuples with the start and end positions of the genomic regions
     """
     primers = pd.read_csv(primers_file, sep="\t", header=None)
     
@@ -233,8 +240,14 @@ def get_genomic_regions(primers_file: str, mode:int = 1) -> List[Tuple[int, int]
 
     return genomic_regions
 
-def remove_directory_contents(directory_path):
-    # TODO write doc
+def remove_directory_contents(directory_path: str) -> None:
+    """
+    Function to remove the contents of a directory and recreate an empty directory
+
+    Args:
+        directory_path: str, path to the directory
+    """
+
     if os.path.exists(directory_path):
         os.system(f'rm -rf {directory_path}')  # Remove the directory and its contents
     os.system(f"mkdir -p {directory_path}")  # Recreate the empty directory
