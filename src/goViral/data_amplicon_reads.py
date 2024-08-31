@@ -36,7 +36,7 @@ class AmpliconReads(Dataset):
         
         if not self.test_mode:
             label = items["label"]
-            target = 1 if label == 'positive' else 0
+            target = 1 if label == 'positive' or label == 1 or label == "1" else 0
 
         data = (read1, read2)
 
