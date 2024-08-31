@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--outdir', dest = 'outdir', required=True, type=str, help="output directory")
     parser.add_argument('--path_to_dataset', dest = 'path_to_dataset', required=True, type=str, help="Path to input dataset")
     parser.add_argument('--gr_start', dest = 'gr_start', required=True, type=int, help="Genomic region start, for which the predictions are to be made")
+    parser.add_argument('--accelerator', dest = 'accelerator', required=False, default = "gpu", type=str, help="gpu or cpu")
     args = parser.parse_args()
     
     out_file_path = os.path.join(args.outdir, "predictions.tsv")
@@ -45,9 +46,7 @@ def main():
     model.eval()
 
     # more than 1 GPUs not supported
-    trainer = pl.Trainer(devices=1, accelerator='gpu', enable_progress_bar=False)
-
-    
+    trainer = pl.Trainer(devices=1, accelerator= args.accelerator, enable_progress_bar=False)
 
     data = AmpliconReads(input_path = args.path_to_dataset, start = args.gr_start, test_mode = True)
     
