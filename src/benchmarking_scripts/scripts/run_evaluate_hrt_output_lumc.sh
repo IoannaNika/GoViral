@@ -31,7 +31,7 @@ for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "
                 
                 echo "file exists"
 
-                python -m scripts.evaluate_hrt_output_lumc --input $input --ref_seq $reference --output $output --sample_name $sample_name --reads $reads
+                python -m benchmarking_scripts.evaluate_hrt_output_lumc --input $input --ref_seq $reference --output $output --sample_name $sample_name --reads $reads
             
             done
         done

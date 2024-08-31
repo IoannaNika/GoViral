@@ -21,7 +21,7 @@ for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
 
                 region_final="${start}_${end_region}"
 
-                python -m scripts.standardise_output_tools_regions --results_dir results/ --ref_seq $reference --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
+                python -m benchmarking_scripts.standardise_output_tools_regions --results_dir results/ --ref_seq $reference --hrt $hrt_tool --ec $ec_tool --region $region_final --sample $sample
             
             done
         
@@ -29,7 +29,7 @@ for hrt_tool in "cliquesnv" "rvhaplo" "haplodmf"; do
             python scripts/merge_standard_output_files.py --results_dir results/${hrt_tool}/${ec_tool}/per_region/${sample}/
 
             # standardise the whole genome output
-            python -m scripts.standardise_output_tools_wg --results_dir results/ --hrt $hrt_tool --ec $ec_tool --sample $sample --ref_seq $reference
+            python -m benchmarking_scripts.standardise_output_tools_wg --results_dir results/ --hrt $hrt_tool --ec $ec_tool --sample $sample --ref_seq $reference
         
         done
     
