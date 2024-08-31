@@ -21,5 +21,11 @@ RVHaplo/
 Strainline/
 src/scripts/__pycache__/
 
+# data
+src/lumc_03_50/
+src/data/
+# finetuned model
+src/goViral/fine_tuned_model/
+
 
 
