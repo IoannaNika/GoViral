@@ -204,12 +204,19 @@ def map_to_correct_region(start: int, genomic_regions: List[Tuple[int, int]]) ->
     return genomic_regions[min_key][0], genomic_regions[min_key][1]
 
 
-def get_genomic_regions(primers_file: str) -> List[Tuple[int, int]]:
+def get_genomic_regions(primers_file: str, mode:int = 1) -> List[Tuple[int, int]]:
     """
     # TODO write description
     """
     primers = pd.read_csv(primers_file, sep="\t", header=None)
-    primers.columns = ["chr", "start", "end", "name_1", "name_2", "strand"]
+    
+    if mode == 1: 
+        primers.columns = ["chr", "start", "end", "name_1", "name_2", "strand"]
+    
+    if mode == 2: 
+        primers.columns = ["placeholder1", "start", "end", "placeholder2", "placeholder3", "placeholder4", "placeholder5"]
+
+
     genomic_regions = []
 
      # read in pairs of 2 rows
@@ -225,3 +232,9 @@ def get_genomic_regions(primers_file: str) -> List[Tuple[int, int]]:
         genomic_regions.append((seq_start, seq_end))
 
     return genomic_regions
+
+def remove_directory_contents(directory_path):
+    # TODO write doc
+    if os.path.exists(directory_path):
+        os.system(f'rm -rf {directory_path}')  # Remove the directory and its contents
+    os.system(f"mkdir -p {directory_path}")  # Recreate the empty directory
