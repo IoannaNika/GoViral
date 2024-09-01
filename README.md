@@ -35,10 +35,10 @@ python -m long_amplicon_read_simulation.run_benchmark_creation --input_fasta <IN
 python -m long_amplicon_read_simulation.run_training_set_creation --input_fasta <INPUT_FASTA_SEQUENCES> --primers_file <.BED FILE WITH PRIMERS AND THEIR POSITIONS> --strategy <pacbio-hifi or ONT> --outdir <OUTPUT_DIRECTORY> --n <NUMBER OF EXAMPLES TO CREATE>
 ```
 
+## Installation & fine-tuned model
+
 ## Example
 
 For the file formats consult the files provided in this example.
-
-
 
 
