@@ -20,8 +20,9 @@ def get_bams_and_beds(ref_seq_file_path:str, input_fastq_file_path:str) -> str:
     Returns:
     bed_file: Path to the bed file
     """
-    
-    output_file = "/".join(input_fastq_file_path.split(".")[:-1])
+ 
+    output_file = input_fastq_file_path[:-6]
+
     os.system("minimap2 -ax map-pb {} {} > {}.sam".format(ref_seq_file_path, input_fastq_file_path, output_file))
     os.system("samtools view -bS {}.sam > {}.bam".format(output_file, output_file))
     os.system("samtools sort {}.bam -o {}.sorted.bam".format(output_file, output_file))
