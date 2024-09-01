@@ -13,13 +13,13 @@ Other options include:
 
 `--coverage_limit` How many reads to consider in each subsample, default is 100.
 
-`--seed_limit` Seed limit for subsampling. How many subsamples to consider.
+`--seed_limit` Seed limit for subsampling. How many subsamples to consider, default is 10.
 
 `--follow_reccomendation` sets the seet limit based on the coverage of the dataset provided.
 
 Increasing the coverage limit or the seed limit will increase the run-time. The run-time can increase also when the follow_reccomendation option is set.
 
-`--ab_threshold` Abundance threshold for filtering out low abundandant reconstructed haplotypes.
+`--ab_threshold` Abundance threshold for filtering out low abundandant reconstructed haplotypes, default is 0.01.
 
 #### Long amplicon read simulation
 
