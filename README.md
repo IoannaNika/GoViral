@@ -26,7 +26,7 @@ Increasing the coverage limit or the seed limit will increase the run-time. The 
 1. Benchmark dataset creation
 
 ```
-python -m long_amplicon_read_simulation.run_benchmark_creation --input_fasta <INPUT_FASTA_SEQUENCES> --mixture <JSON FILE_WITH_SEQUENCE_IDS_AND_THEIR_DESIRED_FRACTION_> --coverage <NUMBER_SPECIFYING_COVERAGE> --primers_file <.BED FILE WITH PRIMERS AND THEIR POSITIONS> --strategy <pacbio-hifi or ONT> --outdir <OUTPUT_DIRECTORY>
+python -m long_amplicon_read_simulation.run_benchmark_creation --input_fasta <INPUT_FASTA_SEQUENCES> --mixture <JSON_FILE_WITH_SEQUENCE_IDS_AND_THEIR_DESIRED_FRACTION> --coverage <NUMBER_SPECIFYING_COVERAGE> --primers_file <.BED FILE WITH PRIMERS AND THEIR POSITIONS> --strategy <pacbio-hifi or ONT> --outdir <OUTPUT_DIRECTORY>
 ```
 
 2. Training dataset creation
