@@ -6,17 +6,19 @@ from utils.utils import get_genomic_regions
 
 def main(): 
     parser = argparse.ArgumentParser(description="Pipeline for running goViral")
-    parser.add_argument('--directory', dest = 'directory', required=True, type=str, help="Directory for input and output files")
+    parser.add_argument('--directory', dest = 'directory', required=True, type=str, help="Directory for output files")
     parser.add_argument('--input_fastq', dest = 'input_fastq', required=True, type=str, help="Input file containing the fastq reads")
     parser.add_argument('--primers', dest = 'primers', required=True, type=str, help="File containing primer positions. To be used for mapping the amplicon reads to the correct genomic regions")
     parser.add_argument('--ref_seq', dest = 'ref_seq', required=True, type=str, help="Reference sequence. To be used for mapping the amplicon reads to the correct genomic regions")
     parser.add_argument('--coverage_limit', dest = 'coverage_limit', default=100, required=False, type=int, help="Coverage limit for subsampling. How many reads to consider in each subsample")
-    parser.add_argument('--seed_limit', dest = 'seed_limit', required=False, default=100, type=int, help="Seed limit for subsampling. How many subsamples to consider")
+    parser.add_argument('--seed_limit', dest = 'seed_limit', required=False, default=10, type=int, help="Seed limit for subsampling. How many subsamples to consider")
     parser.add_argument('--follow_reccomendations', action='store_true', help="Follow reccomendations for seed limit. Overrides seed limit if set")
     parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=False, default=0.01, type=float, help="Abundance threshold for filtering out low abundance sequences")
     args = parser.parse_args()
 
     print("Recommendation setting: ", args.follow_reccomendations)
+
+    os.system(f"mkdir -p {args.directory}")
 
     os.system(f"python -m goViral.make_dataset --fastq {args.input_fastq} --primers {args.primers} --ref_seq {args.ref_seq} --out {args.directory}/reads.tsv")
     
