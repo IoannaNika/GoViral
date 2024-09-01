@@ -29,9 +29,9 @@ def main():
     parser = argparse.ArgumentParser(description="Merge the standard output files from different seeds")
     parser.add_argument('--directory', dest = 'directory', required=True, type=str, help="Directory for input and output files")
     parser.add_argument('--gr_start', dest = 'gr_start', required=True, type=int, help="Genomic region start")
-    parser.add_argument('--coverage', dest = 'coverage', default=10, required=False, type=int, help="Number of reads to consider in each subsample")
-    parser.add_argument('--seed_limit', dest = 'seed_limit', required=True, type=int, help="Number of subsamples to consider")
-    parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=False, default=0.1, type=float, help="Abundance threshold for filtering out low abundance sequences")
+    parser.add_argument('--coverage', dest = 'coverage', default=100, required=False, type=int, help="Number of reads to consider in each subsample")
+    parser.add_argument('--seed_limit', dest = 'seed_limit', default = 10, required=True, type=int, help="Number of subsamples to consider")
+    parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=True, type=float, help="Abundance threshold for filtering out low abundance sequences")
     args = parser.parse_args()
 
     seeds = range(1,args.seed_limit + 1)
