@@ -24,6 +24,8 @@ src/scripts/__pycache__/
 # data
 src/lumc_03_50/
 src/data/
+# test runs
+test_runs/
 # finetuned model
 src/goViral/fine_tuned_model/
 
