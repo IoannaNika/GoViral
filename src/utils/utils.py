@@ -166,6 +166,9 @@ def check_and_update_if_haplotype_exists(standard_output_path: str, region: str,
 
         same_bool, corrected_seq = compare_sequences(row["sequence"], sequence)
         
+        if same_bool:
+            corrected_seq = corrected_seq.replace("-", "").strip("N")
+        
         if row["region"] == region and same_bool:
             # update the row with the corrected sequence
             haplotypes.at[idx, "sequence"] = corrected_seq
