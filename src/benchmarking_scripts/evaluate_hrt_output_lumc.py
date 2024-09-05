@@ -261,6 +261,20 @@ def main():
     input_path = args.input
     input_df = pd.read_csv(input_path, sep='\t', header=0)
 
+
+    # remove sequences that are shorter than 800 bp
+    input_df = input_df[input_df['sequence'].apply(lambda x: len(x) > 800)]
+
+    # ensure that for each genomic region relative abundance sums up to 1
+    for region in input_df['region'].unique():
+        region_df = input_df[input_df['region'] == region]
+        total_rel_ab = region_df['rel_abundance'].sum()
+        if total_rel_ab != 1:
+            # iterate over the rows of the region and update the relative abundance
+            for index, row in input_df.iterrows():
+                if row['region'] == region:
+                    input_df.at[index, 'rel_abundance'] = row['rel_abundance'] / total_rel_ab
+
     genomic_regions = [(54, 1183), (1128, 2244), (2179, 3235), (3166, 4240), (4189, 5337),
                 (5286, 6358), (6307, 7379), (7328, 8363), (8282, 9378), (9327, 10429),
                 (10370, 11447), (11394, 12538), (12473, 13599), (13532, 14619),
@@ -294,13 +308,14 @@ def main():
 
         start = int(region.split('_')[0])
         end = int(region.split('_')[1])
+        
         # extract wuhan and omicron consensus sequences for the specific genomic region
         wuhan_amplicon = cut_amplicon(wuhan_consensus, ref_seq, start, end)
         omicron_amplicon = cut_amplicon(omicron_consensus, ref_seq, start, end)
 
         closest_hap, ed_from_hap = closest_haplotype(seq, rel_ab, omicron_amplicon, wuhan_amplicon, true_abs_per_hap_per_sample_region, region, abundance_per_region, args.sample_name.split("-")[0])
-        print(closest_hap, " is the closest hap")
-
+        print(closest_hap, " is the closest hap with edit distance ", ed_from_hap," with rel ab ", rel_ab,  " region ", region)
+        
         # update metrics
         edit_distance_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(edit_distance_from_closest_consensus_per_region, closest_hap, region, ed_from_hap)
         number_of_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
