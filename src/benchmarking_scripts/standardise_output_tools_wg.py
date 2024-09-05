@@ -53,7 +53,7 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
                 # check if for the same genomic region, a haplotype with the same sequence has already been written
                 # if so, skip writing it
                 # if not, write it
-                if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
+                if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
                     print("Haplotype id: ", haplotype_id)
                     f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
@@ -102,7 +102,7 @@ def process_haplodmf_output(out_file_dir: str, genomic_regions: List[Tuple[int, 
             # cut the amplicon
             reconstructed_amplicon = cut_amplicon(seq, ref_seq, start, end)
 
-            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
+            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
                 f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
     f.close()
@@ -146,7 +146,7 @@ def process_rvhaplo_output(out_file_dir: str, genomic_regions: List[Tuple[int, i
             # cut the amplicon
             reconstructed_amplicon = cut_amplicon(seq, ref_seq, start, end)
             
-            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance) and len(reconstructed_amplicon) > 600:
+            if not check_and_update_if_haplotype_exists(output_file, region_str, reconstructed_amplicon, rel_abundance):
                 f.write("{}\t{}\t{}\t{}\n".format(haplotype_id, region_str, rel_abundance, reconstructed_amplicon))
 
     f.close()
