@@ -1,6 +1,7 @@
 import editdistance
 from typing import Tuple
-
+import os
+from utils.utils import read_fasta_file
 
 def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region:dict) -> float:
     """
@@ -155,8 +156,8 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
     """
 
     # compare the sequence with the wuhan and omicron consensus sequences
-    wuhan_distance = editdistance.eval(wuhan_amplicon, seq)
-    omicron_distance = editdistance.eval(omicron_amplicon, seq)
+    wuhan_distance =  edit_distance_on_overlap(wuhan_amplicon, seq) #editdistance.eval(wuhan_amplicon, seq)
+    omicron_distance = edit_distance_on_overlap(omicron_amplicon, seq)   #.eval(omicron_amplicon, seq)
 
     
     if wuhan_distance < omicron_distance:
@@ -178,3 +179,49 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
             return 'Wuhan', wuhan_distance
         else:
             return 'Omicron', omicron_distance
+
+
+def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
+    # align the two sequences using mafft
+
+    with open("temp.fasta", "w") as f:
+        f.write(">seq1\n{}\n".format(seq1))
+        f.write(">seq2\n{}\n".format(seq2))
+        f.close()
+    
+    # align the sequences using mafft
+    os.system("mafft --quiet temp.fasta > temp_aligned.fasta")
+
+    # read the aligned sequences
+    aligned_seqs = read_fasta_file("temp_aligned.fasta")
+
+    # clean up
+    os.system("rm temp.fasta temp_aligned.fasta")
+
+    aligned_seq1 =""
+    aligned_seq2 =""
+
+    if aligned_seqs[0][0] == "seq1":
+        aligned_seq1 = aligned_seqs[0][1]
+        aligned_seq2 = aligned_seqs[1][1]
+    else:
+        aligned_seq1 = aligned_seqs[1][1]
+        aligned_seq2 = aligned_seqs[0][1]
+    
+    # get the overlapping sequence
+    start = 0
+
+    while aligned_seq1[start] == "-" or aligned_seq2[start] == "-":
+        start += 1
+    
+    end = -1
+
+    while aligned_seq1[end] == "-" or aligned_seq2[end] == "-":
+        end -= 1
+
+    overlap_seq1 = aligned_seq1[start:end].replace("-", "").strip().strip("N")
+    overlap_seq2 = aligned_seq2[start:end].replace("-", "").strip().strip("N")
+
+    edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
+
+    return edit_distance
