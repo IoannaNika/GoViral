@@ -47,7 +47,6 @@ def calculate_average_number_of_haplotypes(number_of_haplotypes_per_region:dict)
 
     return average_number_of_haplotypes
 
-
 def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_sample_region:dict, sample_name:str) -> Tuple[float, float]:
     """
     Calculates the recall for Wuhan and Omicron haplotypes. We define as recall the ratio of the number of true reconstructed haplotypes to the number of true haplotypes.
@@ -83,6 +82,59 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
     recall_omicron = round(sum(recall_omicron) / len(recall_omicron), 2)
 
     return recall_wuhan, recall_omicron
+
+
+def calculate_precision(number_of_exact_haplotypes_per_region:dict, number_of_haplotypes_per_region:dict) -> Tuple[float, float]:
+    """
+    Calculates the precision for Wuhan and Omicron haplotypes. How many of the reconstructed haplotypes assigned to Wuhan and Omicron are exact matches to the true haplotypes?
+
+    Args:
+    number_of_exact_haplotypes_per_region: dict, number of exact haplotypes per region dictionary
+    number_of_haplotypes_per_region: dict, number of haplotypes per region dictionary
+
+    Returns:
+    precision_wuhan: float, precision for Wuhan haplotypes
+    precision_omicron: float, precision for Omicron haplotypes
+    """
+
+    precision_wuhan = []
+    precision_omicron = []
+
+    for region in number_of_exact_haplotypes_per_region:
+        if number_of_haplotypes_per_region[region]['Wuhan'] == 0:
+            precision_wuhan_region = 1
+        else:
+            precision_wuhan_region = number_of_exact_haplotypes_per_region[region]['Wuhan'] / number_of_haplotypes_per_region[region]['Wuhan']
+        if number_of_haplotypes_per_region[region]['Omicron'] == 0:
+            precision_omicron_region = 1
+        else:
+            precision_omicron_region = number_of_exact_haplotypes_per_region[region]['Omicron'] / number_of_haplotypes_per_region[region]['Omicron']
+
+        precision_wuhan.append(precision_wuhan_region)
+        precision_omicron.append(precision_omicron_region)
+
+    precision_wuhan = round(sum(precision_wuhan) / len(precision_wuhan), 2)
+    precision_omicron = round(sum(precision_omicron) / len(precision_omicron), 2)
+
+    return precision_wuhan, precision_omicron
+
+
+def calculate_f1_score(precision:float, recall:float) -> float:
+    """
+    Calculates the F1 score. The harmonic mean of precision and recall.
+
+    Args:
+    precision: float, precision
+    recall: float, recall
+
+    Returns:
+    f1_score: float, F1 score
+    """
+
+    f1_score = round(2 * (precision * recall) / (precision + recall + 1e-6), 3)
+
+    return f1_score
+    
 
 
 def calculate_duplication_ratio(number_of_haplotypes_per_region:dict, true_number_haps_per_sample_region:dict, sample_name:str) -> float:
@@ -180,9 +232,20 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
             return 'Omicron', omicron_distance
 
 
-def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
-    # align the two sequences using mafft
+def find_overlapping_region(seq1:str, seq2:str) -> Tuple[str, str]:
+    """
+    Finds the overlapping region between two sequences
 
+    Args:
+    seq1: str, input sequence 1
+    seq2: str, input sequence 2
+
+    Returns:
+    overlap_seq1: str, overlapping region of sequence 1
+    overlap_seq2: str, overlapping region of sequence 2
+    """
+
+    # align the two sequences using mafft
     with open("temp.fasta", "w") as f:
         f.write(">seq1\n{}\n".format(seq1))
         f.write(">seq2\n{}\n".format(seq2))
@@ -221,6 +284,45 @@ def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
     overlap_seq1 = aligned_seq1[start:end].replace("-", "").strip().strip("N")
     overlap_seq2 = aligned_seq2[start:end].replace("-", "").strip().strip("N")
 
+    return overlap_seq1, overlap_seq2
+
+
+def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
+    """
+    Calculates the edit distance between two sequences on the overlapping region
+
+    Args:
+    seq1: str, input sequence 1
+    seq2: str, input sequence 2
+
+    Returns:
+    edit_distance: int, edit distance between the two sequences
+    """
+    overlap_seq1, overlap_seq2 = find_overlapping_region(seq1, seq2)
+
     edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
 
     return edit_distance
+
+
+def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
+    """
+    Calculates the normalised edit distance between two sequences on the overlapping region
+
+    Args:
+    seq1: str, input sequence 1
+    seq2: str, input sequence 2
+
+    Returns:
+    normalised_edit_distance: float, normalised edit distance between the two sequences
+    """
+
+    overlap_seq1, overlap_seq2 = find_overlapping_region(seq1, seq2)
+
+    edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
+
+    normalised_edit_distance = round(edit_distance / len(overlap_seq1), 3)
+
+    return normalised_edit_distance
+
+   
