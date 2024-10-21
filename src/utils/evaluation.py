@@ -156,10 +156,9 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
     """
 
     # compare the sequence with the wuhan and omicron consensus sequences
-    wuhan_distance =  edit_distance_on_overlap(wuhan_amplicon, seq) #editdistance.eval(wuhan_amplicon, seq)
-    omicron_distance = edit_distance_on_overlap(omicron_amplicon, seq)   #.eval(omicron_amplicon, seq)
+    wuhan_distance =  edit_distance_on_overlap(wuhan_amplicon, seq)
+    omicron_distance = edit_distance_on_overlap(omicron_amplicon, seq)
 
-    
     if wuhan_distance < omicron_distance:
         return 'Wuhan', wuhan_distance
     elif wuhan_distance > omicron_distance:
@@ -168,14 +167,14 @@ def closest_haplotype(seq:str, rel_ab:float, omicron_amplicon:str, wuhan_amplico
         updated_ab_wuhan = abundance_per_region[region]['Wuhan'] + rel_ab
         updated_ab_omicron = abundance_per_region[region]['Omicron'] + rel_ab
         try: 
-            rel_ab_wuhan = abs(updated_ab_wuhan - true_abundances_per_sample_per_region[sample_name][region]['Wuhan']) / (true_abundances_per_sample_per_region[sample_name][region]['Wuhan'] + 1e-6)
+            rel_ab_err_wuhan = abs(updated_ab_wuhan - true_abundances_per_sample_per_region[sample_name][region]['Wuhan']) / (true_abundances_per_sample_per_region[sample_name][region]['Wuhan'] + 1e-6)
         except: 
             print("KeyError: ", true_abundances_per_sample_per_region)
             raise KeyError
 
-        rel_ab_omicron = abs(updated_ab_omicron - true_abundances_per_sample_per_region[sample_name][region]['Omicron']) / (true_abundances_per_sample_per_region[sample_name][region]['Omicron'] + 1e-6)
+        rel_ab_err_omicron = abs(updated_ab_omicron - true_abundances_per_sample_per_region[sample_name][region]['Omicron']) / (true_abundances_per_sample_per_region[sample_name][region]['Omicron'] + 1e-6)
 
-        if rel_ab_wuhan < rel_ab_omicron:
+        if rel_ab_err_wuhan < rel_ab_err_omicron:
             return 'Wuhan', wuhan_distance
         else:
             return 'Omicron', omicron_distance
