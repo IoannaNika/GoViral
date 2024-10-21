@@ -291,6 +291,7 @@ def main():
     ##### metrics tracking #####
     edit_distance_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
     number_of_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
+    number_of_exact_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
     abundance_per_region = init_abundance_per_region(genomic_regions)
     ###########################
 
@@ -320,6 +321,9 @@ def main():
         edit_distance_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(edit_distance_from_closest_consensus_per_region, closest_hap, region, ed_from_hap)
         number_of_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
         abundance_per_region = update_abundance_per_region(abundance_per_region, closest_hap, region, rel_ab)
+        
+        if ed_from_hap == 0: 
+            number_of_exact_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
 
     
     # calculate summary statistics for the whole sample
