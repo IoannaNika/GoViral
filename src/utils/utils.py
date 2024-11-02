@@ -31,7 +31,6 @@ def cut_amplicon(seq: str, ref_seq: str, start: int, end: int) -> str:
 
     # get the amplicon sequence 
     # ensure that the reference sequence is the first sequence in the aligned sequences
-
     if aligned_seqs[0][0] == "seq":
         amplicon_seq = aligned_seqs[0][1][start:end]
     else:

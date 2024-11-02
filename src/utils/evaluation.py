@@ -307,22 +307,22 @@ def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
 
 def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
     """
-    Calculates the normalised edit distance between two sequences on the overlapping region
+    Calculates the normalized edit distance between two sequences on the overlapping region
 
     Args:
     seq1: str, input sequence 1
     seq2: str, input sequence 2
 
     Returns:
-    normalised_edit_distance: float, normalised edit distance between the two sequences
+    normalised_edit_distance: float, normalized edit distance between the two sequences
     """
 
     overlap_seq1, overlap_seq2 = find_overlapping_region(seq1, seq2)
 
     edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
 
-    normalised_edit_distance = round(edit_distance / len(overlap_seq1), 3)
+    normalized_edit_distance = round(edit_distance / len(overlap_seq1), 3)
 
-    return normalised_edit_distance
+    return normalized_edit_distance
 
    

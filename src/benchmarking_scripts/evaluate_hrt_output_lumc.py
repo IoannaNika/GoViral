@@ -5,7 +5,7 @@ from Bio import SeqIO
 import editdistance
 import os
 from typing import List, Tuple
-from utils.evaluation import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, closest_haplotype, calculate_relative_absolute_abundance_error, normalised_edit_distance, calculate_precision, calculate_f1_score
+from utils.evaluation import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, closest_haplotype, calculate_relative_absolute_abundance_error, normalised_edit_distance_on_overlap, calculate_precision, calculate_f1_score
 
 def is_the_coverage_sufficient(reads: pd.DataFrame, gr: str, low_limit: int = 100) -> bool:
     """
@@ -116,7 +116,6 @@ def true_abundances_and_haplotypes_per_sample_per_region(genomic_regions: List[T
                     true_number_haps_per_sample_region[sample] = {}
 
                 if sample in ['08_0', '09_0']:
-
                     true_abundances_per_sample_per_region[sample].update({f"{region_key}": {"Wuhan": 0, "Omicron": 1}})
                     true_number_haps_per_sample_region[sample].update({f"{region_key}": {"Wuhan": 0, "Omicron": 1}})
                 else: 
@@ -271,7 +270,11 @@ def normalize_abundance_per_region(abundance_per_region:dict) -> dict:
 
     for region in abundance_per_region.keys():
         total_ab = abundance_per_region[region]['Wuhan'] + abundance_per_region[region]['Omicron']
-        abundance_per_region[region]['Wuhan'] = abundance_per_region[region]['Wuhan'] / total_ab
+        if total_ab == 0: 
+            print("No abundance for region: ", region)
+            print("Abundance per region: ", abundance_per_region)
+            continue
+        abundance_per_region[region]['Wuhan'] = abundance_per_region[region]['Wuhan'] / total_ab 
         abundance_per_region[region]['Omicron'] = abundance_per_region[region]['Omicron'] / total_ab
 
         assert (abundance_per_region[region]['Wuhan'] + abundance_per_region[region]['Omicron']) == 1
@@ -287,6 +290,8 @@ def main():
     parser.add_argument('--reads', type=str, help='Reads file')
     args = parser.parse_args()
 
+    print("Processing sample: ", args.sample_name)
+
     reads_tsv = pd.read_csv(args.reads, sep='\t', header=None)
 
     wuhan_consensus_path = "/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/consensus/wuhan.fasta"
@@ -300,7 +305,7 @@ def main():
     input_path = args.input
     input_df = pd.read_csv(input_path, sep='\t', header=0)
 
-    # normalised edit distance cutoff, defines the threshold for which a haplotype ends up in the discarded haplotypes
+    # normalized edit distance cutoff, defines the threshold for which a haplotype ends up in the discarded haplotypes
     dissimilarity_cutoff = 0.01
 
     # remove sequences that are shorter than 800 bp
@@ -360,9 +365,9 @@ def main():
         print(closest_hap, " is the closest hap with edit distance ", ed_from_hap," with rel ab ", rel_ab,  " region ", region)
         
         if closest_hap == 'Wuhan':
-            norm_ed = normalised_edit_distance(seq, wuhan_amplicon)
+            norm_ed = normalised_edit_distance_on_overlap(seq, wuhan_amplicon)
         else:
-            norm_ed = normalised_edit_distance(seq, omicron_amplicon)
+            norm_ed = normalised_edit_distance_on_overlap(seq, omicron_amplicon)
 
         # update metrics
         if norm_ed > dissimilarity_cutoff:
@@ -380,13 +385,13 @@ def main():
     
     # normalize the abundance per region to account for the discarded haplotypes
     abundance_per_region = normalize_abundance_per_region(abundance_per_region)
-            
+    print("Abundance per region: ", abundance_per_region)
     # calculate summary statistics for the whole sample
     average_edit_distance = calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region)
     average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_haplotypes_per_region)
     recall_wuhan, recall_omicron = calculate_recall(number_of_haplotypes_per_region, true_n_haps_per_sample_region,args.sample_name.split("-")[0])
     recall = round((recall_omicron + recall_wuhan) / 2,3)
-    precision_omicron, precision_wuhan = calculate_precision(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
+    precision_omicron, precision_wuhan = calculate_precision(number_of_haplotypes_per_region, true_n_haps_per_sample_region[args.sample_name.split("-")[0]])
     precision = round((precision_omicron + precision_wuhan) / 2, 3)
     f1_score = calculate_f1_score(precision, recall)
     # duplication_ratio = calculate_duplication_ratio(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
@@ -397,11 +402,12 @@ def main():
     if not os.path.exists(args.output):
         with open(args.output, 'w') as f:
             f.write("sample_name\tf1_score\trecall\tprecision\taverage_edit_distance\tavg_num_haps_in_discard\tavg_rel_abs_ab_error\n")
+            f.close()
     
     # write the summary statistics to the output file
     with open(args.output, 'a') as f:
         f.write(f"{args.sample_name}\t{f1_score}\t{recall}\t{precision}\t{average_edit_distance}\t{average_number_of_haplotypes_discard}\t{avg_rel_abs_ab_error}\n")
-
+        f.close()
 if __name__ == '__main__':
     main()
    
