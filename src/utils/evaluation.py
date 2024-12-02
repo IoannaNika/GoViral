@@ -2,6 +2,8 @@ import editdistance
 from typing import Tuple
 import os
 from utils.utils import read_fasta_file
+import uuid
+import numpy as np
 
 def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region:dict) -> float:
     """
@@ -16,14 +18,19 @@ def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_reg
     average_edit_distance_wuhan = 0
     average_edit_distance_omicron = 0
 
+    denom_wuhan = 0
+    denom_omicron = 0
+
     for region in edit_distance_from_closest_consensus_per_region:
         average_edit_distance_wuhan += sum(edit_distance_from_closest_consensus_per_region[region]['Wuhan'])
+        denom_wuhan += len(edit_distance_from_closest_consensus_per_region[region]['Wuhan'])
         average_edit_distance_omicron += sum(edit_distance_from_closest_consensus_per_region[region]['Omicron'])
+        denom_omicron += len(edit_distance_from_closest_consensus_per_region[region]['Omicron'])
     
-    average_edit_distance_wuhan = average_edit_distance_wuhan / len(edit_distance_from_closest_consensus_per_region.keys())
-    average_edit_distance_omicron = average_edit_distance_omicron / len(edit_distance_from_closest_consensus_per_region.keys())
+    average_edit_distance_wuhan = average_edit_distance_wuhan / denom_wuhan #len(edit_distance_from_closest_consensus_per_region.keys())
+    average_edit_distance_omicron = average_edit_distance_omicron / denom_omicron #len(edit_distance_from_closest_consensus_per_region.keys())
 
-    average_edit_distance = round((average_edit_distance_wuhan + average_edit_distance_omicron) / 2, 2)
+    average_edit_distance = round((average_edit_distance_wuhan + average_edit_distance_omicron) / 2, 3)
     
     return average_edit_distance
 
@@ -43,7 +50,7 @@ def calculate_average_number_of_haplotypes(number_of_haplotypes_per_region:dict)
     for region in number_of_haplotypes_per_region:
         average_number_of_haplotypes += number_of_haplotypes_per_region[region]['Wuhan'] + number_of_haplotypes_per_region[region]['Omicron']
 
-    average_number_of_haplotypes = round(average_number_of_haplotypes / len(number_of_haplotypes_per_region.keys()), 2)
+    average_number_of_haplotypes = round(average_number_of_haplotypes / len(number_of_haplotypes_per_region.keys()), 3)
 
     return average_number_of_haplotypes
 
@@ -67,19 +74,29 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
 
     for region in number_of_haplotypes_per_region:
         if true_number_haps_per_sample_region[sample_name][region]['Wuhan'] == 0:
-            recall_wuhan_region = 1
+            recall_wuhan_region = np.nan
         else:
             recall_wuhan_region = min (number_of_haplotypes_per_region[region]['Wuhan'] / true_number_haps_per_sample_region[sample_name][region]['Wuhan'], 1)
         if true_number_haps_per_sample_region[sample_name][region]['Omicron'] == 0:
-            recall_omicron_region = 1
+            recall_omicron_region = np.nan
         else:
             recall_omicron_region = min (number_of_haplotypes_per_region[region]['Omicron'] / true_number_haps_per_sample_region[sample_name][region]['Omicron'], 1)
-
+            
         recall_wuhan.append(recall_wuhan_region)
         recall_omicron.append(recall_omicron_region)
+    
+    recall_wuhan = [x for x in recall_wuhan if str(x) != 'nan']
+    recall_omicron = [x for x in recall_omicron if str(x) != 'nan']
 
-    recall_wuhan = round(sum(recall_wuhan) / len(recall_wuhan), 2)
-    recall_omicron = round(sum(recall_omicron) / len(recall_omicron), 2)
+    if (len(recall_wuhan)> 0):
+        recall_wuhan = round(sum(recall_wuhan) / len(recall_wuhan), 3)
+    else:
+        recall_wuhan = np.nan
+
+    if (len(recall_omicron)> 0):
+        recall_omicron = round(sum(recall_omicron) / len(recall_omicron), 3)
+    else:
+        recall_omicron = np.nan
 
     return recall_wuhan, recall_omicron
 
@@ -102,19 +119,29 @@ def calculate_precision(number_of_exact_haplotypes_per_region:dict, number_of_ha
 
     for region in number_of_exact_haplotypes_per_region:
         if number_of_haplotypes_per_region[region]['Wuhan'] == 0:
-            precision_wuhan_region = 1
+            precision_wuhan_region = np.nan
         else:
             precision_wuhan_region = number_of_exact_haplotypes_per_region[region]['Wuhan'] / number_of_haplotypes_per_region[region]['Wuhan']
         if number_of_haplotypes_per_region[region]['Omicron'] == 0:
-            precision_omicron_region = 1
+            precision_omicron_region = np.nan
         else:
             precision_omicron_region = number_of_exact_haplotypes_per_region[region]['Omicron'] / number_of_haplotypes_per_region[region]['Omicron']
-
+        
         precision_wuhan.append(precision_wuhan_region)
         precision_omicron.append(precision_omicron_region)
+    
+    precision_wuhan = [x for x in precision_wuhan if str(x) != 'nan']
+    precision_omicron = [x for x in precision_omicron if str(x) != 'nan']
+    
+    if (len(precision_wuhan)> 0):
+        precision_wuhan = round(sum(precision_wuhan) / len(precision_wuhan), 3)
+    else:
+        precision_wuhan = np.nan
 
-    precision_wuhan = round(sum(precision_wuhan) / len(precision_wuhan), 2)
-    precision_omicron = round(sum(precision_omicron) / len(precision_omicron), 2)
+    if (len(precision_omicron)> 0):
+        precision_omicron = round(sum(precision_omicron) / len(precision_omicron), 3)
+    else:
+        precision_omicron = np.nan
 
     return precision_wuhan, precision_omicron
 
@@ -157,7 +184,7 @@ def calculate_duplication_ratio(number_of_haplotypes_per_region:dict, true_numbe
         duplication_ratio = duplication_ratio / sum(true_number_haps_per_sample_region[sample_name][region].values())
         duplication_ratios.append(duplication_ratio)
 
-    duplication_ratio = round(sum(duplication_ratios) / len(duplication_ratios), 2)
+    duplication_ratio = round(sum(duplication_ratios) / len(duplication_ratios), 3)
 
     return duplication_ratio
 
@@ -183,7 +210,7 @@ def calculate_relative_absolute_abundance_error(abundance_per_region:dict, true_
     rel_ab_error_wuhan = sum(rel_ab_error_wuhan) / len(abundance_per_region.keys())  
     rel_ab_error_omicron = sum(rel_ab_error_omicron) / len(abundance_per_region.keys())
        
-    rel_ab_error = round((rel_ab_error_wuhan + rel_ab_error_omicron) / 2, 2)
+    rel_ab_error = round((rel_ab_error_wuhan + rel_ab_error_omicron) / 2, 3)
 
 
     return rel_ab_error
@@ -244,21 +271,22 @@ def find_overlapping_region(seq1:str, seq2:str) -> Tuple[str, str]:
     overlap_seq1: str, overlapping region of sequence 1
     overlap_seq2: str, overlapping region of sequence 2
     """
+    unique_id = str(uuid.uuid4())
 
     # align the two sequences using mafft
-    with open("temp.fasta", "w") as f:
+    with open("temp_{}.fasta".format(unique_id), "w") as f:
         f.write(">seq1\n{}\n".format(seq1))
         f.write(">seq2\n{}\n".format(seq2))
         f.close()
     
     # align the sequences using mafft
-    os.system("mafft --quiet temp.fasta > temp_aligned.fasta")
+    os.system("mafft --quiet temp_{}.fasta > temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     # read the aligned sequences
-    aligned_seqs = read_fasta_file("temp_aligned.fasta")
+    aligned_seqs = read_fasta_file("temp_aligned_{}.fasta".format(unique_id))
 
     # clean up
-    os.system("rm temp.fasta temp_aligned.fasta")
+    os.system("rm temp_{}.fasta temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     aligned_seq1 =""
     aligned_seq2 =""
@@ -305,7 +333,7 @@ def edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
     return edit_distance
 
 
-def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
+def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> int:
     """
     Calculates the normalized edit distance between two sequences on the overlapping region
 
@@ -324,5 +352,24 @@ def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> Tuple[str, str]:
     normalized_edit_distance = round(edit_distance / len(overlap_seq1), 3)
 
     return normalized_edit_distance
+    
+def percent_identity_on_overlap(seq1:str, seq2:str) -> int:
+ """
+ Calculates the percent identity on the overlapping region between the two sequences
 
-   
+ Args:
+ seq1: str, input sequence 1
+ seq2: str, input sequence 2
+
+ Returns:
+ percent identity: float, percent identity between the two sequences
+ """
+
+ overlap_seq1, overlap_seq2 = find_overlapping_region(seq1, seq2)
+
+ edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
+
+ percent_identity = round(((len(overlap_seq1) - edit_distance) / len(overlap_seq1)), 3)
+
+ return percent_identity
+

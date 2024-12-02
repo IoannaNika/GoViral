@@ -5,7 +5,7 @@ from Bio import SeqIO
 import editdistance
 import os
 from typing import List, Tuple
-from utils.evaluation import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, closest_haplotype, calculate_relative_absolute_abundance_error, normalised_edit_distance_on_overlap, calculate_precision, calculate_f1_score
+from utils.evaluation import calculate_average_edit_distance, calculate_average_number_of_haplotypes, calculate_recall, calculate_duplication_ratio, closest_haplotype, calculate_relative_absolute_abundance_error, normalised_edit_distance_on_overlap, calculate_precision, calculate_f1_score, percent_identity_on_overlap
 
 def is_the_coverage_sufficient(reads: pd.DataFrame, gr: str, low_limit: int = 100) -> bool:
     """
@@ -337,6 +337,7 @@ def main():
     ##### metrics tracking #####
     discarded_haplotypes_per_region = init_discarded_haplotypes_per_region(genomic_regions)
     edit_distance_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
+    percent_identity_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
     number_of_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
     number_of_exact_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
     abundance_per_region = init_abundance_per_region(genomic_regions)
@@ -366,33 +367,43 @@ def main():
         
         if closest_hap == 'Wuhan':
             norm_ed = normalised_edit_distance_on_overlap(seq, wuhan_amplicon)
+            percent_identity = percent_identity_on_overlap(seq, wuhan_amplicon)
         else:
             norm_ed = normalised_edit_distance_on_overlap(seq, omicron_amplicon)
+            percent_identity = percent_identity_on_overlap(seq, omicron_amplicon)
 
         # update metrics
         if norm_ed > dissimilarity_cutoff:
-            print("Discarding haplotype ", haplotype_id, " with normalised edit distance ", norm_ed, " region ", region, "and length ", len(seq))
+            print("Discarding haplotype ", haplotype_id, " with normalised edit distance ", norm_ed, "edit distance ", ed_from_hap, " region ", region, "and length ", len(seq))
             # if the normalised edit distance is higher than the cutoff, the haplotype is discarded
             discarded_haplotypes_per_region[region] += 1
+            continue
 
         edit_distance_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(edit_distance_from_closest_consensus_per_region, closest_hap, region, ed_from_hap)
+        percent_identity_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(percent_identity_from_closest_consensus_per_region, closest_hap, region, percent_identity)
         number_of_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
         abundance_per_region = update_abundance_per_region(abundance_per_region, closest_hap, region, rel_ab)
         
         if ed_from_hap == 0: 
             # if the edit distance is 0, the haplotype is exactly the same as the closest consensus
-            number_of_exact_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
+            number_of_exact_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_exact_haplotypes_per_region, closest_hap, region)
+            print("Current number of exact haplotypes per region: ", number_of_exact_haplotypes_per_region)
     
     # normalize the abundance per region to account for the discarded haplotypes
     abundance_per_region = normalize_abundance_per_region(abundance_per_region)
     print("Abundance per region: ", abundance_per_region)
     # calculate summary statistics for the whole sample
     average_edit_distance = calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region)
+    average_percent_identity = calculate_average_edit_distance(percent_identity_from_closest_consensus_per_region)
     average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_haplotypes_per_region)
-    recall_wuhan, recall_omicron = calculate_recall(number_of_haplotypes_per_region, true_n_haps_per_sample_region,args.sample_name.split("-")[0])
-    recall = round((recall_omicron + recall_wuhan) / 2,3)
-    precision_omicron, precision_wuhan = calculate_precision(number_of_haplotypes_per_region, true_n_haps_per_sample_region[args.sample_name.split("-")[0]])
-    precision = round((precision_omicron + precision_wuhan) / 2, 3)
+    recall_wuhan, recall_omicron = calculate_recall(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
+    recalls = [recall_wuhan, recall_omicron]
+    recalls = [x for x in recalls if str(x) != 'nan']
+    recall = round(sum(recalls)/len(recalls),3)
+    precision_omicron, precision_wuhan = calculate_precision(number_of_exact_haplotypes_per_region, number_of_haplotypes_per_region)
+    precisions = [precision_omicron, precision_wuhan]
+    precisions = [x for x in precisions if str(x) != 'nan']
+    precision = round(sum(precisions)/len(precisions),3)
     f1_score = calculate_f1_score(precision, recall)
     # duplication_ratio = calculate_duplication_ratio(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
     average_number_of_haplotypes_discard = sum(discarded_haplotypes_per_region.values()) / len(discarded_haplotypes_per_region.keys())
@@ -401,13 +412,14 @@ def main():
     # if the output file does not exist, create it
     if not os.path.exists(args.output):
         with open(args.output, 'w') as f:
-            f.write("sample_name\tf1_score\trecall\tprecision\taverage_edit_distance\tavg_num_haps_in_discard\tavg_rel_abs_ab_error\n")
+            f.write("sample_name\tf1_score\trecall\tprecision\taverage_edit_distance\tavg_num_haps_in_discard\tavg_rel_abs_ab_error\taverage_percent_identity\n")
             f.close()
     
     # write the summary statistics to the output file
     with open(args.output, 'a') as f:
-        f.write(f"{args.sample_name}\t{f1_score}\t{recall}\t{precision}\t{average_edit_distance}\t{average_number_of_haplotypes_discard}\t{avg_rel_abs_ab_error}\n")
+        f.write(f"{args.sample_name}\t{f1_score}\t{recall}\t{precision}\t{average_edit_distance}\t{round(average_number_of_haplotypes_discard, 3)}\t{avg_rel_abs_ab_error}\t{average_percent_identity}\n")
         f.close()
+
 if __name__ == '__main__':
     main()
    

@@ -2,6 +2,7 @@ import os
 from typing import List, Tuple
 from Bio import SeqIO
 import pandas as pd
+import uuid
 
 
 def cut_amplicon(seq: str, ref_seq: str, start: int, end: int) -> str:
@@ -17,17 +18,20 @@ def cut_amplicon(seq: str, ref_seq: str, start: int, end: int) -> str:
     Returns:
         str, the reconstructed amplicon sequence
     """ 
+
+    unique_id = str(uuid.uuid4())
+
     # write the reference sequence and the sequence to a temporary file
-    with open("temp.fasta", "w") as f:
+    with open("temp_{}.fasta".format(unique_id), "w") as f:
         f.write(">ref\n{}\n".format(ref_seq))
         f.write(">seq\n{}\n".format(seq))
         f.close()
     
     # align the sequences using mafft
-    os.system("mafft --quiet temp.fasta > temp_aligned.fasta")
+    os.system("mafft --quiet temp_{}.fasta > temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     # read the aligned sequences
-    aligned_seqs = read_fasta_file("temp_aligned.fasta")
+    aligned_seqs = read_fasta_file("temp_aligned_{}.fasta".format(unique_id))
 
     # get the amplicon sequence 
     # ensure that the reference sequence is the first sequence in the aligned sequences
@@ -39,7 +43,7 @@ def cut_amplicon(seq: str, ref_seq: str, start: int, end: int) -> str:
     amplicon_seq = str(amplicon_seq).replace("-", "").strip().strip("N")
     
     # clean up
-    os.system("rm temp.fasta temp_aligned.fasta")
+    os.system("rm temp_{}.fasta temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     return amplicon_seq
 
@@ -78,26 +82,27 @@ def compare_sequences(seq1: str, seq2: str) -> Tuple[bool, str]:
         bool, True if the sequences are the same, False otherwise
         str, the corrected sequence if the sequences are the same, None otherwise
     """
+    unique_id = str(uuid.uuid4())
 
     # align the sequences with MAFFT
     # write the sequences to a temporary file
-    with open("temp.fasta", "w") as f:
+    with open("temp_{}.fasta".format(unique_id), "w") as f:
         f.write(">seq1\n{}\n".format(seq1))
         f.write(">seq2\n{}\n".format(seq2))
         f.close()
     
     # align the sequences using mafft
-    os.system("mafft --quiet temp.fasta > temp_aligned.fasta")
+    os.system("mafft --quiet temp_{}.fasta > temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     # read the aligned sequences
-    aligned_seqs = read_fasta_file("temp_aligned.fasta")
+    aligned_seqs = read_fasta_file("temp_aligned_{}.fasta".format(unique_id))
 
     # get the aligned sequences
     seq1_aligned = str(aligned_seqs[0][1]).upper()
     seq2_aligned = str(aligned_seqs[1][1]).upper()
 
     # remove temporary files
-    os.system("rm temp.fasta temp_aligned.fasta")
+    os.system("rm temp_{}.fasta temp_aligned_{}.fasta".format(unique_id, unique_id))
 
     # replace the surrounding - with N
     curr_char = 0
@@ -202,6 +207,9 @@ def map_to_correct_region(start: int, genomic_regions: List[Tuple[int, int]]) ->
 
     # find the key with minimum distance
     min_key = min(distances, key=distances.get)
+    
+    if distances[min_key] > 10:
+        return None
 
     return genomic_regions[min_key][0], genomic_regions[min_key][1]
 
