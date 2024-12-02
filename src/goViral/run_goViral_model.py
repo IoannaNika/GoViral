@@ -10,7 +10,6 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, StochasticWeightAveraging
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from transformers import TrainingArguments, AutoModelForSequenceClassification, AutoModelForMaskedLM
-from torchsummary import summary
 from peft import PeftConfig, PeftModel
 from peft import LoraConfig, get_peft_model, TaskType, IA3Config
 
@@ -36,7 +35,7 @@ def main():
     f.close()
     
     nt = AutoModelForSequenceClassification.from_pretrained("InstaDeepAI/nucleotide-transformer-v2-500m-multi-species", num_labels =2,  trust_remote_code=True, cache_dir = "/tudelft.net/staff-umbrella/ViralQuasispecies/inika/VQA/src/vqa/cache")
-    adapter_name = "goViral/fine_tuned_model"
+    adapter_name = "goViral/finetuned_model"
 
     model = PeftModel.from_pretrained(nt, adapter_name)
     model = model.merge_and_unload()

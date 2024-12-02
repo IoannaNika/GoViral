@@ -11,6 +11,7 @@ from Bio.SeqRecord import SeqRecord
 import sys
 from utils.utils import check_and_update_if_haplotype_exists
 from typing import IO, Any
+import uuid
 
 def make_output_file(output_file_name: str) -> IO[Any]:
     """
@@ -31,35 +32,29 @@ def make_output_file(output_file_name: str) -> IO[Any]:
     file.close()
     return file
 
-def clean_temp_files():
-    if os.path.exists("temp_input.fasta"):
-        os.remove("temp_input.fasta")
-    if os.path.exists("temp_output.fasta"):
-        os.remove("temp_output.fasta")
-    return
-
-def mafft_alignment(sequences: list) -> None:
+def mafft_alignment(sequences: list, unique_id: str) -> None:
     """
     Perform multiple sequence alignment using mafft
 
     Args:
     sequences: List of sequences to be aligned
+    unique_id: unique_id to be used for temp files
 
     Returns:
     None
     """
     # clear any previous temp files
-    if os.path.exists("temp_input.fasta"):
-        os.remove("temp_input.fasta")
-    if os.path.exists("temp_output.fasta"):
-        os.remove("temp_output.fasta")
+    if os.path.exists("temp_input_{}.fasta".format(unique_id)):
+        os.remove("temp_input_{}.fasta".format(unique_id))
+    if os.path.exists("temp_output_{}.fasta".format(unique_id)):
+        os.remove("temp_output_{}.fasta".format(unique_id))
 
-    with open("temp_input.fasta", "w") as file:
+    with open("temp_input_{}.fasta".format(unique_id), "w") as file:
         for i, seq in enumerate(sequences):
             file.write(">" + str(i) + "\n")
             file.write(seq + "\n")
     # run mafft
-    os.system("mafft --auto --quiet --thread 4 temp_input.fasta > temp_output.fasta")
+    os.system("mafft --auto --quiet --thread 4 temp_input_{}.fasta > temp_output_{}.fasta".format(unique_id, unique_id))
     return
 
 
@@ -71,6 +66,7 @@ def create_consensus(community, genomic_region, results):
     community_results = results[results["Community"] == community]
     community_results = community_results[community_results["Genomic_regions"] == genomic_region]
 
+    unique_id = str(uuid.uuid4()) 
     # get sequences 
     for i in range(len(community_results)):
         sequences.append(community_results.iloc[i]["Sequence"])
@@ -78,15 +74,17 @@ def create_consensus(community, genomic_region, results):
 
     print("Number of sequences: ", len(sequences))
     print("Mafft alignment to be performed...")
-    mafft_alignment(sequences)
+    mafft_alignment(sequences, unique_id)
     print("Mafft alignment done.")
-    alignment = AlignIO.read("temp_output.fasta", "fasta")  
+    alignment = AlignIO.read("temp_output_{}.fasta".format(unique_id), "fasta")  
     summary_align = AlignInfo.SummaryInfo(alignment)
     consensus = summary_align.gap_consensus(ambiguous='N', threshold=0.5)
     # to upper case
     consensus = consensus.upper()
     # # get string representation of the consensus
     consensus = str(consensus).replace("-", "")
+
+    os.system("rm temp_output_{}.fasta temp_input_{}.fasta".format(unique_id, unique_id))
     return consensus
 
 def get_results_per_community_and_genomic_region(community, genomic_region, results):
@@ -131,7 +129,6 @@ def main():
         
     
     file.close()
-    clean_temp_files()
 
 if __name__ == "__main__":
     sys.exit(main())

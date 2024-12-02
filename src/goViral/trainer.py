@@ -1,10 +1,10 @@
+import numpy as np
 import pytorch_lightning as pl
 import torch.optim as optim
 import torch
 import wandb
 import torch.nn.functional as F
 import torch.nn as nn
-import numpy as np
 from transformers import AutoTokenizer
 
 class TransformerBinaryNetTrainer(pl.LightningModule):

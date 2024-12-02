@@ -14,13 +14,15 @@ def main():
     parser.add_argument('--seed_limit', dest = 'seed_limit', required=False, default=10, type=int, help="Seed limit for subsampling. How many subsamples to consider")
     parser.add_argument('--follow_reccomendations', action='store_true', help="Follow reccomendations for seed limit. Overrides seed limit if set")
     parser.add_argument('--ab_threshold', dest = 'ab_threshold', required=False, default=0.01, type=float, help="Abundance threshold for filtering out low abundance sequences")
+    parser.add_argument('--upper_length_limit', dest = 'upper_length_limit', required=False, default = 1200, type=int, help="Reads longer than the upper length limit will be filtered out")
+    parser.add_argument('--low_length_limit', dest = 'low_length_limit', required=False, default = 600, type=int,  help="Reads shorter than the lower length limit will be filtered out")
     args = parser.parse_args()
 
     print("Recommendation setting: ", args.follow_reccomendations)
 
     os.system(f"mkdir -p {args.directory}")
 
-    os.system(f"python -m goViral.make_dataset --fastq {args.input_fastq} --primers {args.primers} --ref_seq {args.ref_seq} --out {args.directory}/reads.tsv")
+    os.system(f"python -m goViral.make_dataset --fastq {args.input_fastq} --primers {args.primers} --ref_seq {args.ref_seq} --out {args.directory}/reads.tsv --upper_length_limit {args.upper_length_limit} --low_length_limit {args.low_length_limit}")
     
     merged_file_path = f"{args.directory}/merged_standard_output.tsv"
     

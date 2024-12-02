@@ -1,10 +1,7 @@
+import numpy as np
 import os
 import argparse
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import matplotlib.patches as mpatches
 from utils.utils import check_and_update_if_haplotype_exists
 
 def adjust_relative_abundance(merged_file_path):
