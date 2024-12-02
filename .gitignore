@@ -29,5 +29,5 @@ test_runs/
 # finetuned model
 src/goViral/fine_tuned_model/
 
-
-
+# old results
+src/results_arch/*
