@@ -101,7 +101,7 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
     return recall_wuhan, recall_omicron
 
 
-def calculate_precision(number_of_exact_haplotypes_per_region:dict, number_of_haplotypes_per_region:dict) -> Tuple[float, float]:
+def calculate_precision(number_of_assigned_haplotypes_per_region:dict, number_of_all_haplotypes_per_region:dict) -> Tuple[float, float]:
     """
     Calculates the precision for Wuhan and Omicron haplotypes. How many of the reconstructed haplotypes assigned to Wuhan and Omicron are exact matches to the true haplotypes?
 
@@ -117,15 +117,15 @@ def calculate_precision(number_of_exact_haplotypes_per_region:dict, number_of_ha
     precision_wuhan = []
     precision_omicron = []
 
-    for region in number_of_exact_haplotypes_per_region:
-        if number_of_haplotypes_per_region[region]['Wuhan'] == 0:
+    for region in number_of_assigned_haplotypes_per_region:
+        if number_of_all_haplotypes_per_region[region]['Wuhan'] == 0:
             precision_wuhan_region = np.nan
         else:
-            precision_wuhan_region = number_of_exact_haplotypes_per_region[region]['Wuhan'] / number_of_haplotypes_per_region[region]['Wuhan']
-        if number_of_haplotypes_per_region[region]['Omicron'] == 0:
+            precision_wuhan_region = number_of_assigned_haplotypes_per_region[region]['Wuhan'] / number_of_all_haplotypes_per_region[region]['Wuhan']
+        if number_of_all_haplotypes_per_region[region]['Omicron'] == 0:
             precision_omicron_region = np.nan
         else:
-            precision_omicron_region = number_of_exact_haplotypes_per_region[region]['Omicron'] / number_of_haplotypes_per_region[region]['Omicron']
+            precision_omicron_region = number_of_assigned_haplotypes_per_region[region]['Omicron'] / number_of_all_haplotypes_per_region[region]['Omicron']
         
         precision_wuhan.append(precision_wuhan_region)
         precision_omicron.append(precision_omicron_region)
