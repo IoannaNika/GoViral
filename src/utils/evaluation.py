@@ -106,8 +106,8 @@ def calculate_precision(number_of_assigned_haplotypes_per_region:dict, number_of
     Calculates the precision for Wuhan and Omicron haplotypes. How many of the reconstructed haplotypes assigned to Wuhan and Omicron are exact matches to the true haplotypes?
 
     Args:
-    number_of_exact_haplotypes_per_region: dict, number of exact haplotypes per region dictionary
-    number_of_haplotypes_per_region: dict, number of haplotypes per region dictionary
+    number_of_assigned_haplotypes_per_region: dict, number of haplotypes assigned to Wuhan or Omicron per region (not discarded)
+    number_of_all_haplotypes_per_region: dict, number of all reconstructed haplotypes per region
 
     Returns:
     precision_wuhan: float, precision for Wuhan haplotypes

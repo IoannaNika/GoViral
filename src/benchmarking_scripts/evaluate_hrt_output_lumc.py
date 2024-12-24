@@ -401,7 +401,7 @@ def main():
     recalls = [recall_wuhan, recall_omicron]
     recalls = [x for x in recalls if str(x) != 'nan']
     recall = round(sum(recalls)/len(recalls),3)
-    precision_omicron, precision_wuhan = calculate_precision(number_of_all_haplotypes_per_region = number_of_all_haplotypes_per_region,number_of_assigned_haplotypes_per_region = number_of_haplotypes_per_region)
+    precision_omicron, precision_wuhan = calculate_precision(number_of_assigned_haplotypes_per_region = number_of_haplotypes_per_region, number_of_all_haplotypes_per_region = number_of_all_haplotypes_per_region)
     precisions = [precision_omicron, precision_wuhan]
     precisions = [x for x in precisions if str(x) != 'nan']
     precision = round(sum(precisions)/len(precisions),3)
