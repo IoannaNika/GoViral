@@ -30,7 +30,7 @@ def calculate_average_edit_distance(edit_distance_from_closest_consensus_per_reg
     average_edit_distance_wuhan = average_edit_distance_wuhan / denom_wuhan #len(edit_distance_from_closest_consensus_per_region.keys())
     average_edit_distance_omicron = average_edit_distance_omicron / denom_omicron #len(edit_distance_from_closest_consensus_per_region.keys())
 
-    average_edit_distance = round((average_edit_distance_wuhan + average_edit_distance_omicron) / 2, 3)
+    average_edit_distance = (average_edit_distance_wuhan + average_edit_distance_omicron) / 2
     
     return average_edit_distance
 
@@ -50,7 +50,7 @@ def calculate_average_number_of_haplotypes(number_of_haplotypes_per_region:dict)
     for region in number_of_haplotypes_per_region:
         average_number_of_haplotypes += number_of_haplotypes_per_region[region]['Wuhan'] + number_of_haplotypes_per_region[region]['Omicron']
 
-    average_number_of_haplotypes = round(average_number_of_haplotypes / len(number_of_haplotypes_per_region.keys()), 3)
+    average_number_of_haplotypes = average_number_of_haplotypes / len(number_of_haplotypes_per_region.keys())
 
     return average_number_of_haplotypes
 
@@ -89,12 +89,12 @@ def calculate_recall(number_of_haplotypes_per_region:dict, true_number_haps_per_
     recall_omicron = [x for x in recall_omicron if str(x) != 'nan']
 
     if (len(recall_wuhan)> 0):
-        recall_wuhan = round(sum(recall_wuhan) / len(recall_wuhan), 3)
+        recall_wuhan = sum(recall_wuhan) / len(recall_wuhan)
     else:
         recall_wuhan = np.nan
 
     if (len(recall_omicron)> 0):
-        recall_omicron = round(sum(recall_omicron) / len(recall_omicron), 3)
+        recall_omicron = sum(recall_omicron) / len(recall_omicron)
     else:
         recall_omicron = np.nan
 
@@ -134,12 +134,12 @@ def calculate_precision(number_of_assigned_haplotypes_per_region:dict, number_of
     precision_omicron = [x for x in precision_omicron if str(x) != 'nan']
     
     if (len(precision_wuhan)> 0):
-        precision_wuhan = round(sum(precision_wuhan) / len(precision_wuhan), 3)
+        precision_wuhan = sum(precision_wuhan) / len(precision_wuhan)
     else:
         precision_wuhan = np.nan
 
     if (len(precision_omicron)> 0):
-        precision_omicron = round(sum(precision_omicron) / len(precision_omicron), 3)
+        precision_omicron = sum(precision_omicron) / len(precision_omicron)
     else:
         precision_omicron = np.nan
 
@@ -158,7 +158,7 @@ def calculate_f1_score(precision:float, recall:float) -> float:
     f1_score: float, F1 score
     """
 
-    f1_score = round(2 * (precision * recall) / (precision + recall + 1e-6), 3)
+    f1_score = 2 * (precision * recall) / (precision + recall + 1e-6)
 
     return f1_score
     
@@ -184,7 +184,7 @@ def calculate_duplication_ratio(number_of_haplotypes_per_region:dict, true_numbe
         duplication_ratio = duplication_ratio / sum(true_number_haps_per_sample_region[sample_name][region].values())
         duplication_ratios.append(duplication_ratio)
 
-    duplication_ratio = round(sum(duplication_ratios) / len(duplication_ratios), 3)
+    duplication_ratio = sum(duplication_ratios) / len(duplication_ratios)
 
     return duplication_ratio
 
@@ -210,7 +210,7 @@ def calculate_relative_absolute_abundance_error(abundance_per_region:dict, true_
     rel_ab_error_wuhan = sum(rel_ab_error_wuhan) / len(abundance_per_region.keys())  
     rel_ab_error_omicron = sum(rel_ab_error_omicron) / len(abundance_per_region.keys())
        
-    rel_ab_error = round((rel_ab_error_wuhan + rel_ab_error_omicron) / 2, 3)
+    rel_ab_error = (rel_ab_error_wuhan + rel_ab_error_omicron) / 2
 
 
     return rel_ab_error
@@ -349,7 +349,7 @@ def normalised_edit_distance_on_overlap(seq1:str, seq2:str) -> int:
 
     edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
 
-    normalized_edit_distance = round(edit_distance / len(overlap_seq1), 3)
+    normalized_edit_distance = edit_distance / len(overlap_seq1)
 
     return normalized_edit_distance
     
@@ -369,7 +369,7 @@ def percent_identity_on_overlap(seq1:str, seq2:str) -> int:
 
  edit_distance = editdistance.eval(overlap_seq1, overlap_seq2)
 
- percent_identity = round(((len(overlap_seq1) - edit_distance) / len(overlap_seq1)), 3)
+ percent_identity = ((len(overlap_seq1) - edit_distance) / len(overlap_seq1))
 
  return percent_identity
 

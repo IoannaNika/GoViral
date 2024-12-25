@@ -306,7 +306,7 @@ def main():
     input_df = pd.read_csv(input_path, sep='\t', header=0)
 
     # defines the threshold for which a haplotype ends up in the discarded haplotypes
-    dissimilarity_cutoff = 0.3
+    dissimilarity_cutoff = 0.2
 
     # remove sequences that are shorter than 800 bp
     # input_df = input_df[input_df['sequence'].apply(lambda x: len(x) > 800)]
@@ -371,12 +371,13 @@ def main():
             percent_identity = percent_identity_on_overlap(seq, omicron_amplicon)
         
         cutoff_percent_identity = (1-percent_identity) * 100
-
+        print(f"Cutoff percent identity {cutoff_percent_identity}")
         number_of_all_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_all_haplotypes_per_region, closest_hap, region)
         # update metrics
         if cutoff_percent_identity > dissimilarity_cutoff:
             print("Discarding haplotype ", haplotype_id, " with edit distance ", ed_from_hap, " region ", region, "and length ", len(seq))
             # if the normalised edit distance is higher than the cutoff, the haplotype is discarded
+            print(f"Cutoff percent identity {cutoff_percent_identity}")
             discarded_haplotypes_per_region[region] += 1
             continue
 
@@ -385,11 +386,6 @@ def main():
         number_of_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
         abundance_per_region = update_abundance_per_region(abundance_per_region, closest_hap, region, rel_ab)
         
-        if ed_from_hap == 0: 
-            # if the edit distance is 0, the haplotype is exactly the same as the closest consensus
-            number_of_exact_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_exact_haplotypes_per_region, closest_hap, region)
-            print("Current number of exact haplotypes per region: ", number_of_exact_haplotypes_per_region)
-    
     # normalize the abundance per region to account for the discarded haplotypes
     abundance_per_region = normalize_abundance_per_region(abundance_per_region)
     print("Abundance per region: ", abundance_per_region)
@@ -418,7 +414,7 @@ def main():
     
     # write the summary statistics to the output file
     with open(args.output, 'a') as f:
-        f.write(f"{args.sample_name}\t{f1_score}\t{recall}\t{precision}\t{average_edit_distance}\t{round(average_number_of_haplotypes_discard, 3)}\t{avg_rel_abs_ab_error}\t{average_percent_identity}\t{duplication_ratio}\n")
+        f.write(f"{args.sample_name}\t{round(f1_score,3)}\t{round(recall,3)}\t{round(precision,3)}\t{round(average_edit_distance,3)}\t{round(average_number_of_haplotypes_discard, 3)}\t{round(avg_rel_abs_ab_error,3)}\t{round(average_percent_identity,3)}\t{round(duplication_ratio,3)}\n")
         f.close()
 
 if __name__ == '__main__':
