@@ -29,5 +29,11 @@ test_runs/
 # finetuned model
 src/goViral/fine_tuned_model/
 
-# old results
+# other results
 src/results_arch/*
+src/results_debug/*
+# cache
+cache/*
+
+# singularity images
+*.sif
