@@ -11,7 +11,7 @@ function_run_cliquesnv(){
     ec_method=$4
 
     in_path="../data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
-    out_path="results/cliquesnv/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    out_path="results_debug/cliquesnv/${ec_method}/per_region/${sample}/${start}_${end_region}/"
     
     mkdir -p $out_path
 
@@ -25,11 +25,15 @@ function_run_haplodmf(){
     ec_method=$4
     reference=$5
     
-    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
-    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    in_path="/mnt/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
+    out_path="/mnt/src/results_debug/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
     
-    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
-    ./haplodmf.sh -i $in_path -r $reference -o $out_path  -sp ${start} -ep ${end_region}
+    mkdir -p "/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_debug/haplodmf/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+
+    cd ../HaploDMF/
+    image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/haplodmf.sif"
+    mountdir="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking"
+    apptainer exec --bind $mountdir:/mnt $image_path ./haplodmf.sh -i $in_path -r $reference -o $out_path  -sp ${start} -ep ${end_region}
     cd ../src
 }
 
@@ -40,13 +44,16 @@ function_run_rvhaplo(){
     ec_method=$4
     reference=$5
 
-    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
-    out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
+    in_path="/mnt/data/LUMC/per_region/${ec_method}/${sample}/${sample}_${start}_${end_region}.sam"
+    out_path="/mnt/src/results_debug/rvhaplo/${ec_method}/per_region/${sample}/${start}_${end_region}/"
     
-    cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/RVHaplo/
-    ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
+    cd ../RVHaplo/
+    image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/rvhaplo_image.sif"
+    mountdir="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking"
+    apptainer exec --bind $mountdir:/mnt $image_path ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
     cd ../src
 }
+
 
 #### logic
 
@@ -66,9 +73,10 @@ do
         start=$(echo $region | cut -d',' -f1)
         end_region=$(echo $region | cut -d',' -f2)
 
-        echo "region: ${start} ${end_region}"
-
         for ec_tool in "canu" "hifiasm" "lorma" "original"; do
+
+            echo "ec_tool ${ec_tool}"
+            echo "region: ${start} ${end_region}"
         
             if [[ "$tool_to_run" == "cliquesnv" ]]; then
                 function_run_cliquesnv $sample $start $end_region $ec_tool
@@ -79,7 +87,7 @@ do
             if [[ "$tool_to_run" == "rvhaplo" ]]; then
                 function_run_rvhaplo $sample $start $end_region $ec_tool $reference
             fi
-
+            
         done
 
     done
