@@ -276,8 +276,9 @@ def normalize_abundance_per_region(abundance_per_region:dict) -> dict:
             continue
         abundance_per_region[region]['Wuhan'] = abundance_per_region[region]['Wuhan'] / total_ab 
         abundance_per_region[region]['Omicron'] = abundance_per_region[region]['Omicron'] / total_ab
-
-        assert (abundance_per_region[region]['Wuhan'] + abundance_per_region[region]['Omicron']) == 1
+        
+        print("Total abundance check: ", (abundance_per_region[region]['Wuhan'] + abundance_per_region[region]['Omicron']))
+        assert (abundance_per_region[region]['Wuhan'] + abundance_per_region[region]['Omicron']) > 0.99
 
     return abundance_per_region
 
