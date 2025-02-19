@@ -376,7 +376,10 @@ def main():
         number_of_all_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_all_haplotypes_per_region, closest_hap, region)
         # update metrics
         if cutoff_percent_identity > dissimilarity_cutoff:
-            print("Discarding haplotype ", haplotype_id, " with edit distance ", ed_from_hap, " region ", region, "and length ", len(seq))
+            try:
+                print("Discarding haplotype ", haplotype_id, " with edit distance ", ed_from_hap, " region ", region, "and length ", len(seq))
+            except:
+                print("Discarding haplotype ", haplotype_id, " with edit distance ", ed_from_hap, " region ", region, "and seq ", seq)
             # if the normalised edit distance is higher than the cutoff, the haplotype is discarded
             print(f"Cutoff percent identity {cutoff_percent_identity}")
             discarded_haplotypes_per_region[region] += 1
