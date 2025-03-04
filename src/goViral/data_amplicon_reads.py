@@ -14,8 +14,11 @@ class AmpliconReads(Dataset):
         self.reference_set = pd.read_csv(os.path.join(self.input_path), sep='\t', header=0, on_bad_lines='skip')
         
         if self.test_mode: 
-            self.reference_set = self.reference_set[self.reference_set["start"] == int(self.start)]
-        
+            if "start" in self.reference_set.columns:
+                self.reference_set = self.reference_set[self.reference_set["start"] == int(self.start)]
+            else: 
+                self.reference_set = self.reference_set[self.reference_set["genomic_region"].str.split("_").str[0].astype(int) == int(self.start)]
+
         self.length = len(self.reference_set)
 
     def __getitem__(self, index: int):
@@ -52,7 +55,10 @@ class AmpliconReads(Dataset):
             data = self.transform(data)
 
         if self.test_mode: 
-            gr = str(items["start"]) + "_" + str(items["end"])
+            if "start" in self.reference_set.columns:
+                gr = str(items["start"]) + "_" + str(items["end"])
+            else: 
+                gr = items["genomic_region"]
             
             return (id1, id2), data, gr
         else:
