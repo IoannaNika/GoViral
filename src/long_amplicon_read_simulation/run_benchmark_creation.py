@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--outdir', dest = 'outdir', required=True, type=str, help="The output directory")
     args = parser.parse_args()
 
-    if args.strategy != "pacbio-hifi" or args.strategy != "ONT": 
+    if args.strategy not in ["pacbio-hifi", "ONT"]: 
         print(f"{args.strategy} is an invalid option for strategy, must be pacbio-hifi or ONT")
         exit()
 
@@ -20,7 +20,7 @@ def main():
     os.system(f"python -m long_amplicon_read_simulation.simulate_amplicon_reads_ab_cov --data_dir {args.outdir} --strategy {args.strategy} --ids_and_ab {args.mixture} --coverage {args.coverage} --outdir {args.outdir} --primers {args.primers_file} --input_fasta {args.input_fasta}")
     all_reads_output = os.path.join(args.outdir, "output")
     
-    if strategy == "pacbio-hifi":
+    if args.strategy == "pacbio-hifi":
         os.system(f"python -m long_amplicon_read_simulation.make_all_reads --data_dir {args.outdir} --out {all_reads_output}")
     else: 
         os.system(f"python -m long_amplicon_read_simulation.make_all_reads --data_dir {args.outdir} --out {all_reads_output} --ont")
