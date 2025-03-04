@@ -339,8 +339,9 @@ def main():
     discarded_haplotypes_per_region = init_discarded_haplotypes_per_region(genomic_regions)
     edit_distance_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
     percent_identity_from_closest_consensus_per_region = init_edit_distance_from_closest_consensus_per_region(genomic_regions)
-    number_of_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
+    number_of_assigned_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
     number_of_all_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
+    number_of_exact_haplotypes_per_region = init_number_of_haplotypes_per_region(genomic_regions)
     abundance_per_region = init_abundance_per_region(genomic_regions)
     ###########################
 
@@ -387,26 +388,29 @@ def main():
 
         edit_distance_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(edit_distance_from_closest_consensus_per_region, closest_hap, region, ed_from_hap)
         percent_identity_from_closest_consensus_per_region = update_edit_distance_from_closest_consensus_per_region(percent_identity_from_closest_consensus_per_region, closest_hap, region, percent_identity)
-        number_of_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_haplotypes_per_region, closest_hap, region)
+        number_of_assigned_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_assigned_haplotypes_per_region, closest_hap, region)
         abundance_per_region = update_abundance_per_region(abundance_per_region, closest_hap, region, rel_ab)
-        
+    
+        if ed_from_hap == 0: 
+            number_of_exact_haplotypes_per_region = update_number_of_haplotypes_per_region(number_of_exact_haplotypes_per_region, closest_hap, region)
+
     # normalize the abundance per region to account for the discarded haplotypes
     abundance_per_region = normalize_abundance_per_region(abundance_per_region)
     print("Abundance per region: ", abundance_per_region)
     # calculate summary statistics for the whole sample
     average_edit_distance = calculate_average_edit_distance(edit_distance_from_closest_consensus_per_region)
     average_percent_identity = calculate_average_edit_distance(percent_identity_from_closest_consensus_per_region)
-    average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_haplotypes_per_region)
-    recall_wuhan, recall_omicron = calculate_recall(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
+    average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_assigned_haplotypes_per_region)
+    recall_wuhan, recall_omicron = calculate_recall(number_of_assigned_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
     recalls = [recall_wuhan, recall_omicron]
     recalls = [x for x in recalls if str(x) != 'nan']
     recall = round(sum(recalls)/len(recalls),3)
-    precision_omicron, precision_wuhan = calculate_precision(number_of_assigned_haplotypes_per_region = number_of_haplotypes_per_region, number_of_all_haplotypes_per_region = number_of_all_haplotypes_per_region)
+    precision_omicron, precision_wuhan = calculate_precision(number_of_assigned_haplotypes_per_region = number_of_exact_haplotypes_per_region, number_of_all_haplotypes_per_region = number_of_assigned_haplotypes_per_region)
     precisions = [precision_omicron, precision_wuhan]
     precisions = [x for x in precisions if str(x) != 'nan']
     precision = round(sum(precisions)/len(precisions),3)
     f1_score = calculate_f1_score(precision, recall)
-    duplication_ratio = calculate_duplication_ratio(number_of_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
+    duplication_ratio = calculate_duplication_ratio(number_of_assigned_haplotypes_per_region, true_n_haps_per_sample_region, args.sample_name.split("-")[0])
     average_number_of_haplotypes_discard = sum(discarded_haplotypes_per_region.values()) / len(discarded_haplotypes_per_region.keys())
     avg_rel_abs_ab_error = calculate_relative_absolute_abundance_error(abundance_per_region, true_abs_per_hap_per_sample_region, args.sample_name.split("-")[0])
     

@@ -1,6 +1,6 @@
 reference="../data/LUMC/ref/nCoV-2019.reference.fasta"
-results_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results"
-output="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results/results.tsv"
+results_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_debug"
+output="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_debug/results.tsv"
 
 for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "09_0"; do   
 
@@ -38,4 +38,4 @@ for sample in "01_100" "02_100" "03_50" "04_75" "05_90" "06_95" "07_98" "08_0" "
     done
 done
 
-python -m benchmarking_scripts.summarise_evaluation_across_samples --results_file results/results.tsv --output_file results/summary.tsv --split_per_region_and_wg
+python -m benchmarking_scripts.summarise_evaluation_across_samples --results_file results_debug/results.tsv --output_file results_debug/summary.tsv --split_per_region_and_wg
