@@ -11,7 +11,8 @@ src/data/example_data/
 example/
 lightning_logs/
 
-goViral/fine_tuned_model/
+src/goViral/fine_tuned_model/
+src/goViral/finetuned_model/
 
 ### code for tools
 CliqueSNV/
@@ -32,6 +33,7 @@ src/goViral/fine_tuned_model/
 # other results
 src/results_arch/*
 src/results_debug/*
+src/results_simulations/*
 # cache
 cache/*
 
