@@ -1,38 +1,38 @@
-name: CI
+# name: CI
 
 on: [] #[push, pull_request]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: "latest"  # or specify a version
-          auto-activate-base: true
+#       - name: Set up Miniconda
+#         uses: conda-incubator/setup-miniconda@v2
+#         with:
+#           miniconda-version: "latest"  # or specify a version
+#           auto-activate-base: true
 
-      - name: Create Conda Environment
-        run: |
-          conda create -n myenv python=3.8 -y
+#       - name: Create Conda Environment
+#         run: |
+#           conda create -n myenv python=3.8 -y
 
-      - name: Install Python dependencies
-        run: |
-          conda run -n myenv pip install -r requirements.txt
+#       - name: Install Python dependencies
+#         run: |
+#           conda run -n myenv pip install -r requirements.txt
 
-      - name: Install MAFFT
-        run: |
-          conda run -n myenv conda install -c bioconda mafft
+#       - name: Install MAFFT
+#         run: |
+#           conda run -n myenv conda install -c bioconda mafft
 
-      - name: Verify MAFFT Installation
-        run: |
-          conda run -n myenv mafft --version
+#       - name: Verify MAFFT Installation
+#         run: |
+#           conda run -n myenv mafft --version
 
-      - name: Run tests
-        run: |
-          conda run -n myenv coverage run -m unittest discover -s tests
-          conda run -n myenv coverage report
+#       - name: Run tests
+#         run: |
+#           conda run -n myenv coverage run -m unittest discover -s tests
+#           conda run -n myenv coverage report
