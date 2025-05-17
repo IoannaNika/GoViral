@@ -7,7 +7,7 @@ do
     canu -correct -d "${outputdir}" -p output.canu \
         genomeSize=29.8k useGrid=false maxMemory=90g saveReads=true stopOnLowCoverage=0 \
         -pacbio "${inputfasta}" 
-    gzip -d -c ${outputdir}/output.canu.correctedReads.fasta.gz > ${outdir}/output.canu.correctedReads.fasta
+    gzip -d -c ${outputdir}/output.canu.correctedReads.fasta.gz > ${outputdir}/output.canu.correctedReads.fasta
 done
 
 
