@@ -11,7 +11,7 @@ function_run_cliquesnv(){
     in_path="../data/LUMC/whole_genome/${ec_method}/${sample}/${sample}.sam"
     out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_debug/cliquesnv/${ec_method}/whole_genome/${sample}/"
 
-    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path
+    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -t 1 -tf 0
 }
 
 function_run_haplodmf(){
@@ -42,7 +42,7 @@ function_run_rvhaplo(){
     cd ../RVHaplo
     image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/rvhaplo_image.sif"
     mountdir="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking"
-    apptainer exec --bind $mountdir:/mnt $image_path ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01
+    apptainer exec --bind $mountdir:/mnt $image_path ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -a 0
     cd ../src
 }
 

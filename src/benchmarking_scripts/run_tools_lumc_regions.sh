@@ -15,7 +15,7 @@ function_run_cliquesnv(){
     
     mkdir -p $out_path
 
-    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region}
+    java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -log -in $in_path -outDir $out_path -sp ${start} -ep ${end_region} -t 1 -tf 0
 }
 
 function_run_haplodmf(){
@@ -50,7 +50,7 @@ function_run_rvhaplo(){
     cd ../RVHaplo/
     image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/rvhaplo_image.sif"
     mountdir="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking"
-    apptainer exec --bind $mountdir:/mnt $image_path ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region}
+    apptainer exec --bind $mountdir:/mnt $image_path ./rvhaplo.sh -i $in_path -r $reference -o $out_path --error_rate 0.01 -sp ${start} -ep ${end_region} -a 0
     cd ../src
 }
 
