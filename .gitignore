@@ -35,6 +35,7 @@ src/results_arch/*
 src/results_debug/*
 src/results_debug_2/*
 src/results_simulations/*
+src/results_simulations_2/*
 # cache
 cache/*
 
