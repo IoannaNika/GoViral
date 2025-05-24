@@ -106,7 +106,11 @@ for coverage in 100; do
 
                 echo "${virus} ${sample} ${ec_tool}"
                 
-                in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/output.canu.correctedReads.fasta"
+                if [[ "$ectool" == "hicanu" ]]; then
+                    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/output.canu.correctedReads.fasta"
+                else 
+                    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/output/reads.fasta"
+                fi 
                 
                 function_produce_sam_bam_bed $ref_seq $in_path $ec_tool $sample $coverage $virus 
 
