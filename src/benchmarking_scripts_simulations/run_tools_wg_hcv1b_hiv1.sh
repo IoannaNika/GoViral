@@ -40,7 +40,7 @@ function_run_cliquesnv(){
     virus=$4
     results_dir=$5
 
-    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_tool}.sam"
+    in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_method}.sam"
     out_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/${results_dir}/cliquesnv/${virus}/${coverage}/whole_genome/${ec_method}/${sample}/"
 
     java -jar ../CliqueSNV/clique-snv.jar -m snv-pacbio -tf 0.0 -t 1 -log -in $in_path -outDir $out_path
@@ -55,7 +55,7 @@ function_run_rvhaplo(){
     virus=$5
     results_dir=$6
 
-    in_path="/mnt/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_tool}.sam"
+    in_path="/mnt/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_method}.sam"
     out_path="/mnt/src/${results_dir}/rvhaplo/${virus}/${coverage}/whole_genome/${ec_method}/${sample}/"
     
     cd ../RVHaplo
@@ -73,8 +73,10 @@ function_run_haplodmf(){
     virus=$5
     results_dir=$6
     
-    in_path="/mnt/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_tool}.sam"
+    in_path="/mnt/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_method}.sam"
     out_path="/mnt/src/${results_dir}/haplodmf/${virus}/${coverage}/whole_genome/${ec_method}/${sample}/"
+    
+    mkdir -p /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/${results_dir}/haplodmf/${virus}/${coverage}/whole_genome/${ec_method}/${sample}
     
     cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
     image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/haplodmf.sif"
@@ -85,7 +87,7 @@ function_run_haplodmf(){
 
 #### logic
 
-results_dir="results_simulations_2"
+results_dir="results_simulations_3"
 
 ref_seq_hcv1b="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/hcv1b95/reference.fasta"
 ref_seq_hiv1="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/hiv1/reference.fasta"
@@ -106,7 +108,7 @@ for coverage in 100; do
 
                 echo "${virus} ${sample} ${ec_tool}"
                 
-                if [[ "$ectool" == "hicanu" ]]; then
+                if [[ "$ec_tool" == "hicanu" ]]; then
                     in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/output.canu.correctedReads.fasta"
                 else 
                     in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/output/reads.fasta"

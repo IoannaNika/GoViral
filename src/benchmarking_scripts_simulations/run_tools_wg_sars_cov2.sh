@@ -15,11 +15,11 @@ function_produce_sam_bam_bed(){
     echo $ec_tool
     echo $cov
 
-    output="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/sam_bam"
+    output="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${cov}/whole_genome/${ec_tool}/${sample}/sam_bam"
     # echo $output
     mkdir -p $output
 
-    output_file="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_tool}/${sample}/sam_bam/reads_${ec_tool}"
+    output_file="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${cov}/whole_genome/${ec_tool}/${sample}/sam_bam/reads_${ec_tool}"
     # echo $output_file
 
     # align reads to reference using minimap2
@@ -51,7 +51,7 @@ function_run_rvhaplo(){
     $coverage=$4
     results_dir=$5
 
-    in_path="/mnt/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_tool}.sam"
+    in_path="/mnt/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_method}.sam"
     out_path="/mnt/src/${results_dir}/rvhaplo/sarscov2/${coverage}/whole_genome/${ec_method}/${sample}/"
     
     cd ../RVHaplo
@@ -68,9 +68,11 @@ function_run_haplodmf(){
     coverage=$4
     results_dir=$5
     
-    in_path="/mnt/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_tool}.sam"
+    in_path="/mnt/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_method}/${sample}/sam_bam/reads_${ec_method}.sam"
     out_path="/mnt/src/${results_dir}/haplodmf/sarscov2/${coverage}/whole_genome/${ec_method}/${sample}/"
     
+    mkdir -p /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/${results_dir}/haplodmf/sarscov2/${coverage}/whole_genome/${ec_method}/${sample}
+
     cd /tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/HaploDMF
     image_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/images/haplodmf.sif"
     mountdir="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking"
@@ -80,7 +82,7 @@ function_run_haplodmf(){
 
 #### logic
 
-results_dir="results_simulations_2"
+results_dir="results_simulations_3"
 
 ref_seq="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/LUMC/ref/nCoV-2019.reference.fasta"
 
@@ -90,7 +92,7 @@ for coverage in 100; do
 
         for ec_tool in "hicanu" "original"; do
 
-            if [[ "$ectool" == "hicanu" ]]; then   
+            if [[ "$ec_tool" == "hicanu" ]]; then   
                 in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_tool}/${n_haps}/output.canu.correctedReads.fasta"
             else 
                 in_path="/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/${ec_tool}/${n_haps}/output/reads.fasta"
