@@ -7,6 +7,7 @@ import json
 from utils.evaluation import percent_identity_on_overlap, calculate_f1_score
 from utils.utils import get_genomic_regions
 import numpy as np
+import math
 
 def calculate_precision(number_of_exact_haplotypes_per_region: dict, number_of_assigned_haplotypes_per_region: dict):
     """
@@ -229,6 +230,11 @@ def closest_haplotype(seq: str, templates: dict, rel_ab: float, true_abundances_
     - closest_hap: The closest haplotype sequence based on edit distance and relative abundance.
     - ed_from_hap: The edit distance of the assigned haplotype.
     """
+
+    for hap_id, hap in templates.items():
+        if hap_id in true_abundances_per_region[region].keys():
+            print(f"hap_id: {hap_id}, hap[region] type: {type(hap[region])}, value: {hap[region]}")
+            print(f"seq type: {type(seq)}, value: {seq}")
 
     # Step 1: Calculate edit distance to each haplotype in 'templates'
     edit_distances = {hap_id: editdistance.eval(seq, hap[region]) for hap_id, hap in templates.items() if hap_id in true_abundances_per_region[region].keys()}
@@ -494,8 +500,6 @@ def main():
 
     input_df = pd.read_csv(args.input_path, sep='\t', header=0)
     templates = get_templates(mixture_json, args.data_dir)
-    print("templates")
-    print(templates)
     seq_ids = get_seq_ids(mixture_json)
 
     # defines the threshold for which a haplotype ends up in the discarded haplotypes
@@ -513,8 +517,11 @@ def main():
     
     genomic_regions = get_genomic_regions(args.primers, mode = 2)
 
+    print("Genomic regions", genomic_regions)
+
     true_abundances_per_region, true_num_of_haps_per_region = true_abundances_and_haplotypes_per_region(genomic_regions, templates, mixture_json)
     
+    print("true_abundances_per_region", true_abundances_per_region)
     # print("true_num_of_haps_per_region", true_num_of_haps_per_region)
     # print("true_abundances_per_region", true_abundances_per_region)
     ##### metrics tracking #####
@@ -534,6 +541,9 @@ def main():
         region = row.iloc[1]
         rel_ab = float(row.iloc[2])
         seq = row.iloc[3]
+        
+        if seq == "" or (isinstance(seq, float) and math.isnan(seq)):
+            continue
 
         closest_hap, ed_from_hap = closest_haplotype(seq, templates, rel_ab, true_abundances_per_region, abundance_per_region, region)
         print(closest_hap, " is the closest hap with edit distance ", ed_from_hap," with rel ab ", rel_ab,  " region ", region)
