@@ -1,4 +1,4 @@
-results_dir="results_simulations_2"
+results_dir="results_simulations_3"
 for coverage in 100; do
       
     for sample in "ab_3_97" "ab_30_70" "ab_50_50" "ab_70_30" "ab_97_3"; do
@@ -24,7 +24,7 @@ for coverage in 100; do
 
                     echo "Processing sample ${input_path}"
 
-                    python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${sample}-${ec_tool}-${hrt}-whole_genome"
+                    python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${sample}-${ec_tool}-${hrt}-whole_genome-${virus}"
                 
                 done
 
