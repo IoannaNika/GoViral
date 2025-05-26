@@ -9,9 +9,9 @@ for coverage in 100; do
 
 
                 mixture_file="../data/Simulations/sarscov2/mixture_files/${n_haps}.json"
-                input_path="results_simulations_2/${hrt}/sarscov2/${coverage}/whole_genome/${ec_tool}/${n_haps}/standard_output.tsv"
+                input_path="results_simulations_3/${hrt}/sarscov2/${coverage}/whole_genome/${ec_tool}/${n_haps}/standard_output.tsv"
                 templates="../data/Simulations/sarscov2/mixture_files/${n_haps}.json"
-                output="results_simulations_2/results_sars_cov_2_tools.tsv"
+                output="results_simulations_3/results_sars_cov_2_tools.tsv"
                 primers="../data/Simulations/sarscov2/merged.bed"
                 data_dir="../data/Simulations/sarscov2/simulated_data/${coverage}/whole_genome/original/${n_haps}"
                 
@@ -22,7 +22,7 @@ for coverage in 100; do
 
                 echo "Processing sample ${input_path}"
 
-                python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${n_haps}-${ec_tool}-${hrt}-whole_genome"
+                python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${n_haps}-${ec_tool}-${hrt}-whole_genome-sarscov2"
             
             done
 
