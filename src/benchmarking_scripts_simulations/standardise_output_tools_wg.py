@@ -5,7 +5,7 @@ import pandas as pd
 from Bio import SeqIO
 from utils.utils import cut_amplicon, read_fasta_file, check_and_update_if_haplotype_exists, get_genomic_regions
 
-def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int, int]], ref_seq: str):
+def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int, int]], ref_seq: str, ec_tool: str):
     """
     Function to process the output of cliquesnv and standardize it
 
@@ -18,7 +18,7 @@ def process_cliquesnv_output(out_file_dir: str, genomic_regions: List[Tuple[int,
 
     sample = out_file_dir.split("/")[-1].strip()
     # locate .fasta file
-    fasta_file_path = os.path.join(out_file_dir, "reads_hicanu.fasta")
+    fasta_file_path = os.path.join(out_file_dir, "reads_{}.fasta".format(ec_tool))
     
     if not os.path.exists(fasta_file_path):
         print("File does not exist", fasta_file_path)
@@ -210,7 +210,7 @@ def main():
     outptut_dir = os.path.join(results_dir, hrt, virus, coverage, "whole_genome", ec, sample)
 
     if hrt == "cliquesnv":
-        process_cliquesnv_output(outptut_dir, genomic_regions, ref_seq)
+        process_cliquesnv_output(outptut_dir, genomic_regions, ref_seq, ec)
     elif hrt == "haplodmf":
         process_haplodmf_output(outptut_dir, genomic_regions, ref_seq)    
     elif hrt == "rvhaplo":

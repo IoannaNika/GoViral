@@ -1,6 +1,6 @@
 # sars cov 2
 
-results_dir=/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_simulations_2
+results_dir=/tudelft.net/staff-umbrella/ViralQuasispecies/inika/Benchmarking/src/results_simulations_3
 ref_seq="../data/LUMC/ref/nCoV-2019.reference.fasta"
 
 for coverage in 100; do
