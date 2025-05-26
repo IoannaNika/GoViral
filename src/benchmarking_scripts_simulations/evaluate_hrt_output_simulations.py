@@ -192,7 +192,7 @@ def calculate_average_metric(metric_dictionary: dict) -> float:
     for region, hap_dict in metric_dictionary.items():
         for hap_id, edit_distances in hap_dict.items():
             # Calculate the average metric for the current haplotype in this region
-            hap_avg_ed = sum(edit_distances) / len(edit_distances)
+            hap_avg_ed = sum(edit_distances) / len(edit_distances) if len(edit_distances) > 0 else 0
             
             # Add this region's average metric to the haplotype's running total
             if hap_id not in haplotype_avg_ed:
@@ -205,7 +205,7 @@ def calculate_average_metric(metric_dictionary: dict) -> float:
     
     for hap_id, hap_avg_ed_list in haplotype_avg_ed.items():
         # Calculate the average of averages for this haplotype
-        hap_total_avg = sum(hap_avg_ed_list) / len(hap_avg_ed_list)
+        hap_total_avg = sum(hap_avg_ed_list) / len(hap_avg_ed_list) if len(hap_avg_ed_list) > 0 else 0
         total_avg += hap_total_avg
         num_haplotypes += 1
     
@@ -231,10 +231,10 @@ def closest_haplotype(seq: str, templates: dict, rel_ab: float, true_abundances_
     - ed_from_hap: The edit distance of the assigned haplotype.
     """
 
+    print(f"seq type: {type(seq)}, value: {seq}")
+
     for hap_id, hap in templates.items():
-        if hap_id in true_abundances_per_region[region].keys():
-            print(f"hap_id: {hap_id}, hap[region] type: {type(hap[region])}, value: {hap[region]}")
-            print(f"seq type: {type(seq)}, value: {seq}")
+        print(f"hap_id: {hap_id}, hap[region] type: {type(hap[region])}, value: {hap[region]}")
 
     # Step 1: Calculate edit distance to each haplotype in 'templates'
     edit_distances = {hap_id: editdistance.eval(seq, hap[region]) for hap_id, hap in templates.items() if hap_id in true_abundances_per_region[region].keys()}
@@ -498,8 +498,9 @@ def main():
     print("Processing sample: ", args.sample_name)
     mixture_json = load_json(args.mixture_file)
 
-    input_df = pd.read_csv(args.input_path, sep='\t', header=0)
+    input_df = pd.read_csv(args.input_path, sep='\t', header=0, on_bad_lines="warn")
     templates = get_templates(mixture_json, args.data_dir)
+    print("Templates: ", templates)
     seq_ids = get_seq_ids(mixture_json)
 
     # defines the threshold for which a haplotype ends up in the discarded haplotypes
@@ -542,6 +543,10 @@ def main():
         rel_ab = float(row.iloc[2])
         seq = row.iloc[3]
         
+        # no template sequence for last regio of hiv
+        if "hiv" in args.sample_name and region == "8156_9137":
+            continue
+        
         if seq == "" or (isinstance(seq, float) and math.isnan(seq)):
             continue
 
@@ -579,13 +584,13 @@ def main():
     average_number_of_haplotypes = calculate_average_number_of_haplotypes(number_of_haplotypes_per_region)
     recalls = calculate_recall(number_of_haplotypes_per_region, true_num_of_haps_per_region)
     recalls = [recall for seq, recall in recalls.items()]
-    recall =  sum(recalls) / len(recalls)
+    recall =  sum(recalls) / len(recalls) if len(recalls) > 0 else 0
     precisions = calculate_precision(number_of_exact_haplotypes_per_region, number_of_haplotypes_per_region)
     precisions = [precision for seq, precision in precisions.items()]
-    precision =  sum(precisions) / len(precisions)
+    precision =  sum(precisions) / len(precisions) if len(precisions) > 0 else 0
     f1_score = calculate_f1_score(precision, recall)
     duplication_ratio = calculate_duplication_ratio(number_of_haplotypes_per_region, true_num_of_haps_per_region)
-    average_number_of_haplotypes_discard = sum(discarded_haplotypes_per_region.values()) / len(discarded_haplotypes_per_region.keys())
+    average_number_of_haplotypes_discard = sum(discarded_haplotypes_per_region.values()) / len(discarded_haplotypes_per_region.keys()) if len(discarded_haplotypes_per_region.keys()) > 0 else 0
     avg_rel_abs_ab_error = calculate_relative_absolute_abundance_error(abundance_per_region, true_abundances_per_region)
     
     # if the output file does not exist, create it
