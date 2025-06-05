@@ -9,23 +9,30 @@ for coverage in 100; do
 
                 for hrt in "cliquesnv" "haplodmf" "rvhaplo"; do
 
+                    for setting in "regions"; do
 
-                    mixture_file="../data/Simulations/${virus}/mixture_files/${coverage}/${sample}.json"
-                    input_path="${results_dir}/${hrt}/${virus}/${coverage}/whole_genome/${ec_tool}/${sample}/standard_output.tsv"
-                    templates="../data/Simulations/${virus}/mixture_files/${sample}.json"
-                    output="${results_dir}/results_hcv1b_hiv1.tsv"
-                    primers="../data/Simulations/${virus}/primers.bed"
-                    data_dir="../data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/original/${sample}"
+                        mixture_file="../data/Simulations/${virus}/mixture_files/${coverage}/${sample}.json"
+                        if [ "${setting}" == "regions" ]; then
+                            input_path="${results_dir}/${hrt}/${virus}/${coverage}/${setting}/${ec_tool}/${sample}/merged_standard_output.tsv"
+                        else 
+                            input_path="${results_dir}/${hrt}/${virus}/${coverage}/${setting}/${ec_tool}/${sample}/standard_output.tsv"
+                        fi
+                        templates="../data/Simulations/${virus}/mixture_files/${sample}.json"
+                        output="${results_dir}/results_hcv1b_hiv1.tsv"
+                        primers="../data/Simulations/${virus}/primers.bed"
+                        data_dir="../data/Simulations/${virus}/simulated_data/${coverage}/whole_genome/original/${sample}"
+                        
+                        if [[ ! -f "${input_path}" ]]; then
+                            echo "${input_path} does not exist, skipping..."
+                            continue
+                        fi
+
+                        echo "Processing sample ${input_path}"
+
+                        python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${sample}-${ec_tool}-${hrt}-${setting}-${virus}"
                     
-                    if [[ ! -f "${input_path}" ]]; then
-                        echo "${input_path} does not exist, skipping..."
-                        continue
-                    fi
+                    done
 
-                    echo "Processing sample ${input_path}"
-
-                    python -m benchmarking_scripts_simulations.evaluate_hrt_output_simulations --input_path $input_path --data_dir $data_dir --templates $templates --output $output --primers $primers --mixture_file $mixture_file --sample_name "${sample}-${ec_tool}-${hrt}-whole_genome-${virus}"
-                
                 done
 
             done
